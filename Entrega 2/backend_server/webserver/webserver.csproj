@@ -4,6 +4,11 @@
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+
+    <OutputPath>$(SolutionDir)output/webserver/bin</OutputPath>
+    <BaseIntermediateOutputPath>$(SolutionDir)output/webserver/obj</BaseIntermediateOutputPath>
+    <MSBUildProjectExtensionsPath>$(SolutionDir)output/webserver/bin</MSBUildProjectExtensionsPath>
+    
   </PropertyGroup>
 
   <ItemGroup>

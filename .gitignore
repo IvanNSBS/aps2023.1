@@ -44,6 +44,7 @@ _UpgradeReport_Files/
 ###############
 # Directories #
 ###############
+output/
 bin/
 obj/
 TestResults/
