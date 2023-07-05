@@ -4,13 +4,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-
     <IsPackable>false</IsPackable>
-    <OutputPath>$(SolutionDir)output/tests/bin</OutputPath>
-    
-    <BaseIntermediateOutputPath>$(SolutionDir)output/tests/obj</BaseIntermediateOutputPath>
-    <MSBUildProjectExtensionsPath>$(SolutionDir)output/tests/bin</MSBUildProjectExtensionsPath>
-    
   </PropertyGroup>
 
   <ItemGroup>
