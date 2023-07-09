@@ -13,10 +13,20 @@ namespace webserver
         [MaxLength(30, ErrorMessage = "This field must contain at most 30 characters")]
         public string ProjectName { get; private set; }
 
-        public Project(string id, string projectName)
+        [ForeignKey("OwnerFK")]
+        public Account Owner { get; private set; } 
+        public string OwnerFK { get; private set; }
+
+        public Project(string id, string projectName, string ownerFK)
         {
             Id = id;
             ProjectName = projectName;
+            OwnerFK = ownerFK;
+        }
+
+        public Project(string id, string projectName, Account owner) : this(id, projectName, owner.Id)
+        {
+            Owner = owner;
         }
     }
 }

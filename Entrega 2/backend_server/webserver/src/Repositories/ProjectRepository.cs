@@ -4,8 +4,8 @@ namespace webserver
 {
     public interface IProjectsRepository
     {
-        string[] GetAllUserProjects();
-        void CreateProject(string name);
+        string[] GetAllUserProjects(string userId);
+        void CreateProject(string owner_id, string projectName);
     }
 
     public class ProjectsRepository : IProjectsRepository
@@ -14,27 +14,32 @@ namespace webserver
         
         public ProjectsRepository(IServiceScopeFactory scopeFactory)
         {
-            // _db = configuration;
             this._scopeFactory = scopeFactory;
         }
 
-        public string[] GetAllUserProjects()
+        public string[] GetAllUserProjects(string userId)
         {
-            // return new[] { "asdasd" };
             using(var scope = _scopeFactory.CreateScope())
             {
                 var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-                return db.Projects.Select(x => x.ProjectName).ToArray();
+                var projects = db.Projects.Where(x => x.Owner.Id == userId).Select(x => x.ProjectName);
+                return projects.ToArray();
             }
         }
 
-        public void CreateProject(string name)
+        public void CreateProject(string ownerId, string projectName)
         {
             using(var scope = _scopeFactory.CreateScope())
             {
                 var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                Account? acc = db.Accounts.FirstOrDefault(x => x.Id == ownerId);
+                if(acc == null) {
+                    Console.WriteLine($"There's no account with username {ownerId}");
+                    return;
+                }
+
                 string uuid = Guid.NewGuid().ToString();
-                db.Projects.Add(new Project(uuid, name));
+                db.Projects.Add(new Project(uuid, projectName, acc));
                 db.SaveChanges();
             }
         }

@@ -10,6 +10,7 @@ class Program
         builder.Services.AddDbContext<AppDbContext>();
         builder.Services.AddSingleton<IAccountsRepository, AccountsRepository>();
         builder.Services.AddSingleton<IProjectsRepository, ProjectsRepository>();
+        builder.Services.AddSingleton<IDocumentsRepository, DocumentsRepository>();
         
         builder.Services.AddControllers();
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

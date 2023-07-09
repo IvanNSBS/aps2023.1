@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace webserver
 {
@@ -11,21 +13,33 @@ namespace webserver
         public ProjectsController(IProjectsRepository repo)
         {
             _repo = repo;
-            Console.Write("created!!!");
         }
 
         [HttpGet]
-        [Route("test_get")]
-        public ActionResult<string> TestGet()
+        [Route("get_user_projects/{userId}")]
+        public ActionResult<string> GetUserProjects(string userId)
         {
-            return string.Join(",", _repo.GetAllUserProjects());
+            return string.Join(",", _repo.GetAllUserProjects(userId));
         }
 
         [HttpPost]
-        [Route("test_post/{project_name}")]
-        public ActionResult TestPost(string project_name)
+        [Route("create_project")]
+        public async Task<ActionResult> CreateProject()
         {
-            _repo.CreateProject(project_name);
+            using var reader = new StreamReader(HttpContext.Request.Body);
+            var body = await reader.ReadToEndAsync();
+            
+            var data = JsonConvert.DeserializeObject<JObject>(body);
+            if(data == null)
+                return StatusCode(500, "Invalid request body");
+            
+            string? userId = data.SelectToken("user_id")?.Value<string>();
+            string? projectName = data.SelectToken("project_name")?.Value<string>();
+
+            if(userId == null || projectName == null)
+                return StatusCode(500, "Invalid Email, Username or Password");
+
+            _repo.CreateProject(userId, projectName);
             return Ok();
         }
     }

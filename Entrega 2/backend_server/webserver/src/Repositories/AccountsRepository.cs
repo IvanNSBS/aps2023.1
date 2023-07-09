@@ -2,12 +2,6 @@ using System;
 
 namespace webserver
 {
-    public interface IAccountsRepository
-    {
-        string[] GetAllUsernames();
-        void AddUser(string username, string password);
-    }
-
     public class AccountsRepository : IAccountsRepository
     {
         private readonly IServiceScopeFactory _scopeFactory;
@@ -17,23 +11,37 @@ namespace webserver
             _scopeFactory = scopeFactory;
         }
 
-        public string[] GetAllUsernames()
+        public bool CreateUser(string email, string username, string password)
         {
             using(var scope = _scopeFactory.CreateScope())
             {
                 var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-                return db.Accounts.Select(x => x.Username).ToArray();
+                Account? account = db.Accounts.FirstOrDefault(x => x.UserEmail == email );
+                if( account != null )
+                    return false;
+
+                string uuid = Guid.NewGuid().ToString();
+                db.Accounts.Add(new Account(uuid, email, username, password));
+                db.SaveChanges();
+
+                return true;
             }
         }
 
-        public void AddUser(string username, string password)
+        public string? ValidateUser(string email, string password)
         {
             using(var scope = _scopeFactory.CreateScope())
             {
                 var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-                string uuid = Guid.NewGuid().ToString();
-                db.Accounts.Add(new Account(uuid, username, password));
-                db.SaveChanges();
+                Account? account = db.Accounts.FirstOrDefault(x => x.UserEmail == email );
+
+                if(account == null)
+                    return null;
+
+                if(account.Password != password)
+                    return null;
+
+                return account.Id;
             }
         }
     }
