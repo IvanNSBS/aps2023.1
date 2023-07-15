@@ -41,14 +41,14 @@ const AllProjectsView: FC<ProjectsProps> = (props: ProjectsProps): ReactElement 
 
     const on_click_project = function(proj_name: string) {
         console.log(`Clicked on project: ${proj_name}`);
-        navigate(AppRoutes.project_view);
+        const navigate_data = { state: { project_name: proj_name} };
+        navigate(AppRoutes.project_view, navigate_data);
     }
 
     return (
         <div>
             <span>
-                <p>Projects View</p>
-                <a href={AppRoutes.login}>Logout</a>
+                <p>All Projects View</p>
             </span>
             <Cont>
                 <ProjectsContainer>
@@ -60,6 +60,7 @@ const AllProjectsView: FC<ProjectsProps> = (props: ProjectsProps): ReactElement 
                 </ProjectsContainer>
             </Cont>
             <button onClick={create_project}>Criar Novo Projeto</button>
+            <a href={AppRoutes.login}>Logout</a>
         </div>
     )
 }

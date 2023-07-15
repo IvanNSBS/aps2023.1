@@ -2,7 +2,7 @@ import React, { FC, ReactElement, useState } from 'react';
 import AppRoutes from '../AppRoutes';
 import ProjectGridItem from './ProjectGridItem';
 import { styled } from 'styled-components';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 type ProjectsProps = {
 }
@@ -20,6 +20,7 @@ const Cont = styled.div`
 const ProjectView: FC<ProjectsProps> = (props: ProjectsProps): ReactElement => {
     
     const [documents, setDocuments] = useState<string[] | []>([]);
+    const { state } = useLocation();
     const navigate = useNavigate();
 
     const create_document = function() {
@@ -40,13 +41,14 @@ const ProjectView: FC<ProjectsProps> = (props: ProjectsProps): ReactElement => {
 
     const on_click_document = function(document_name: string) {
         console.log(`Clicked on document: ${document_name}`)
+        const navigate_data = { state: { document_name: document_name} };
+        navigate(AppRoutes.edit_document, navigate_data);
     }
 
     return (
         <div>
             <span>
-                <p>Single Project View</p>
-                <a href={AppRoutes.login}>Logout</a>
+                <p>{state.project_name} View</p>
             </span>
             <Cont>
                 <ProjectsContainer>
@@ -56,8 +58,10 @@ const ProjectView: FC<ProjectsProps> = (props: ProjectsProps): ReactElement => {
                         )
                     }
                 </ProjectsContainer>
+                <button onClick={() => navigate(-1)}>Voltar</button>
             </Cont>
             <button onClick={create_document}>Criar Novo Documento</button>
+            <a href={AppRoutes.login}>Logout</a>
         </div>
     )
 }
