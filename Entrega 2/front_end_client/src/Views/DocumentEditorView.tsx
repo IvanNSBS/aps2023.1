@@ -1,7 +1,7 @@
 import React, { FC, ReactElement } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import AppRoutes from '../AppRoutes';
 import { styled } from 'styled-components';
+import TextEditor from './TextEditor';
 
 type DocumentEditorView = {
 
@@ -46,12 +46,6 @@ const EditorHeader = styled.div`
     margin-bottom: 20px;
 `
 
-const TextInputttt: FC<DocumentEditorView> = (props: DocumentEditorView): ReactElement => {
-    return (
-        <></>
-    )
-}
-
 const DocumentEditorView: FC<DocumentEditorView> = (props: DocumentEditorView): ReactElement => {
     const navigate = useNavigate();
     const { state } = useLocation();
@@ -62,8 +56,8 @@ const DocumentEditorView: FC<DocumentEditorView> = (props: DocumentEditorView): 
                 <p>Edit {state.document_name} View</p>
                 <button onClick={() => navigate(-1)}>Voltar</button>
             </EditorHeader>
-            <TextContainer contentEditable='true'>
-                <TextInput spellCheck='false'></TextInput>
+            <TextContainer>
+                <TextEditor></TextEditor>
             </TextContainer>
         </EditorContainer>
     )
