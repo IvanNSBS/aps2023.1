@@ -7,28 +7,6 @@ type DocumentEditorView = {
 
 }
 
-const TextInput = styled.div`
-    width: 100%;
-    height: 90%;
-    resize: none;
-    background: white;
-    color: black;
-
-    overflow: auto;
-    padding: 10px;
-    margin-bottom: 30px;
-`
-
-const TextContainer = styled.div`
-
-    height: max(90vh, 350px);
-    width: 750px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-`
-
 const EditorContainer = styled.div`
     display: flex;
     flex-flow: row;
@@ -56,9 +34,7 @@ const DocumentEditorView: FC<DocumentEditorView> = (props: DocumentEditorView): 
                 <p>Edit {state.document_name} View</p>
                 <button onClick={() => navigate(-1)}>Voltar</button>
             </EditorHeader>
-            <TextContainer>
-                <TextEditor></TextEditor>
-            </TextContainer>
+            <TextEditor></TextEditor>
         </EditorContainer>
     )
 }

@@ -101,6 +101,32 @@ const process_tokens = function(page_content: string, prev_tokens: TokenInfo[]) 
   return [tokens, changes];
 }
 
+const TextContainer = styled.div`
+  height: max(85vh, 350px);
+  width: 750px;
+
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 30px;
+`
+
+const TextInput = styled.div`
+  width: 100%;
+  height: 90%;
+  resize: none;
+  background: white;
+  color: black;
+
+  overflow: auto;
+  padding: 10px;
+
+  &:focus {
+    outline: none;
+  }
+`
+
 const TextEditor: FC = (): ReactElement => {
     const [words, setWords] = useState<string[] | []>([]);
     const tokensInfo = useRef<TokenInfo[]>([]);
@@ -134,11 +160,16 @@ const TextEditor: FC = (): ReactElement => {
     }
     
     return (
-      <>
-        <div ref={self} contentEditable suppressContentEditableWarning onInput={onChange}>
-        </div> 
+      <TextContainer>
+        <TextInput 
+          ref={self} 
+          contentEditable 
+          suppressContentEditableWarning 
+          spellCheck="false"
+          onInput={onChange}>
+        </TextInput> 
         <button onClick={test_select}> Test Select </button> 
-      </>
+      </TextContainer>
     );
 }
 
