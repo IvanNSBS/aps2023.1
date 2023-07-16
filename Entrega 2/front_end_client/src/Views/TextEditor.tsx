@@ -1,6 +1,7 @@
 import React, { FC, ReactElement, useState, useRef } from 'react';
 import { styled } from 'styled-components';
-import { process_tokens, TokenInfo, TokenChanges } from '../Business/TextEditorTokenizer';
+import { process_tokens, TokenInfo, TokenChanges } from '../Business/TextEditor/TextEditorTokenizer';
+import { select_token } from '../Business/TextEditor/TextTokenSelector';
 
 const TextContainer = styled.div`
   height: max(85vh, 350px);
@@ -44,20 +45,10 @@ const TextEditor: FC = (): ReactElement => {
       if(self === null || self.current === null)
         return;
 
-      const tokens = tokensInfo.current;
-      const tokenIdx = 0;
-      let child = self.current.childNodes[tokens[tokenIdx].row];
-      if(child.firstChild)
-        child = child.firstChild;
-
-      let range = new Range();
-      range.setStart(child, tokens[tokenIdx].range_start);
-      range.setEnd(child, tokens[tokenIdx].range_end);
-
-      console.log(range.getBoundingClientRect());
-
+      const token = tokensInfo.current[0];
+      const select_range = select_token(self.current, token);
       getSelection()?.removeAllRanges();
-      getSelection()?.addRange(range);
+      getSelection()?.addRange(select_range);
     }
     
     return (
