@@ -48,10 +48,15 @@ const RejectSuggestionBtn = styled.button`
     margin: 0;
 `
 
+const Word = styled.span`
+    padding: 0px;
+    margin: 0px;
+`
+
 const SuggestGrammarPopup: FC<SuggestPopupProps> = (props: SuggestPopupProps): ReactElement => {
     return (
         <PopupDiv width={props.width} height={props.height}>
-            {props.word_suggestion}
+            <Word>{props.word_suggestion}</Word>
             <RejectSuggestionBtn>x</RejectSuggestionBtn>
         </PopupDiv>
     );
