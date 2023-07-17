@@ -1,13 +1,20 @@
 import React, { FC, ReactElement, useState, useRef } from 'react';
 import { styled } from 'styled-components';
 import SuggestGrammarPopup from './SuggestGrammarPopup';
+import { TokenInfo } from '../../Business/TextEditor/TextEditorTokenizer';
+import { getTextWidth } from '../../Business/TextEditor/TextTokenSelector';
 
 export type SuggestGrammarProps = {
     rect: DOMRect;
+    word_token: TokenInfo;
     word_suggestion: string;
-}
+};
 
-const HighLightDiv = styled.div<SuggestGrammarProps>`
+type HighlightProps = {
+    rect: DOMRect;
+};
+
+const HighLightDiv = styled.div<HighlightProps>`
     position: absolute;
 
     left: ${props => props.rect.x}px;
@@ -28,16 +35,19 @@ const SuggestGrammarHighlight: FC<SuggestGrammarProps> = (props: SuggestGrammarP
     const [showSuggestGrammar, setShowSuggestGrammar] = useState<boolean>(false);
 
     const handleClick = function() {
-        console.log("aiojasoidjshauidsa")
         setShowSuggestGrammar(!showSuggestGrammar);
     }
 
     let popup = <></>;
     if(showSuggestGrammar)
-        popup = <SuggestGrammarPopup rect={props.rect} word_suggestion={props.word_suggestion}></SuggestGrammarPopup>
+    {
+        const width = getTextWidth(props.word_suggestion , "12px Helvetica");
+        const height = props.rect.height;
+        popup = <SuggestGrammarPopup width={width} height={height} word_suggestion={props.word_suggestion}></SuggestGrammarPopup>
+    }
 
     return (
-        <HighLightDiv rect={props.rect} onClick={handleClick} word_suggestion={props.word_suggestion}>
+        <HighLightDiv onClick={handleClick} rect={props.rect}>
             {popup}
         </HighLightDiv>
     );

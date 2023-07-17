@@ -54,6 +54,7 @@ const TextEditor: FC = (): ReactElement => {
       const token = tokensInfo.current[tokenIndex];
       const select_range = select_token(self.current, token);
       setTokenRect(select_range.getBoundingClientRect());
+      console.log(select_range.getBoundingClientRect());
     }
     
     const onSliderChange = function(new_val: any) {
@@ -62,7 +63,7 @@ const TextEditor: FC = (): ReactElement => {
 
     let grammar = <></>
     if(tokenRect && self && self.current) {
-      grammar = <SuggestGrammarHighlight rect={tokenRect} word_suggestion='lorem ipsum'></SuggestGrammarHighlight>
+      grammar = <SuggestGrammarHighlight rect={tokenRect} word_suggestion='lorem ipsummmmmasdasdasdsam' word_token={tokensInfo.current[tokenIndex]}></SuggestGrammarHighlight>
     }
     
     return (

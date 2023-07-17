@@ -13,3 +13,13 @@ export const select_token = function(editor_div: HTMLDivElement, word_token: Tok
     return range;
     console.log(range.getBoundingClientRect());
 }
+
+export const getTextWidth = function(text: string, font: string): number {
+  const canvas = document.createElement('canvas');
+  const context = canvas.getContext('2d');
+  if(!context)
+    return -1;
+
+  context.font = font || getComputedStyle(document.body).font;
+  return context.measureText(text).width;
+}
