@@ -2,7 +2,7 @@ import React, { FC, ReactElement } from "react";
 import "./Views/LoginView" 
 import LoginView from "./Views/LoginView";
 import AllProjectsView from "./Views/AllProjectsView";
-import DocumentEditorView from "./Views/DocumentEditorView";
+import DocumentEditorView from "./Views/DocumentEditor/DocumentEditorView";
 import { Route, Routes } from "react-router-dom";
 import AppRoutes from "./AppRoutes";
 import CreateUserView from "./Views/CreateUserView";

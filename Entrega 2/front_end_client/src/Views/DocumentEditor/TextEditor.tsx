@@ -1,7 +1,8 @@
 import React, { FC, ReactElement, useState, useRef } from 'react';
 import { styled } from 'styled-components';
-import { process_tokens, TokenInfo, TokenChanges } from '../Business/TextEditor/TextEditorTokenizer';
-import { select_token } from '../Business/TextEditor/TextTokenSelector';
+import { process_tokens, TokenInfo, TokenChanges } from '../../Business/TextEditor/TextEditorTokenizer';
+import { select_token } from '../../Business/TextEditor/TextTokenSelector';
+import SuggestGrammarHighlight from './SuggestGrammarHighlight';
 
 const TextContainer = styled.div`
   height: max(85vh, 350px);
@@ -20,6 +21,7 @@ const TextInput = styled.div`
   resize: none;
   background: white;
   color: black;
+  border: 1px solid gray;
 
   overflow: auto;
   padding: 10px;
@@ -30,37 +32,55 @@ const TextInput = styled.div`
 `
 
 const TextEditor: FC = (): ReactElement => {
-    const [words, setWords] = useState<string[] | []>([]);
+    const [tokenRect, setTokenRect] = useState<DOMRect>();
+    const [tokenRange, setTokenRange] = useState<number>(0);
+    const [tokenIndex, setTokenIndex] = useState<number>(0);
+
     const tokensInfo = useRef<TokenInfo[]>([]);
     const self = useRef<HTMLDivElement>(null);
 
     const onChange = function(evt: any) {
-      setWords(evt.target.innerText);
       const [new_tokens, changes] = process_tokens(evt.target.innerText, tokensInfo.current);
-      tokensInfo.current = new_tokens;
       console.log(changes);
+      
+      tokensInfo.current = new_tokens;
+      setTokenRange(new_tokens.length-1);
     }
 
     const test_select = function() {
       if(self === null || self.current === null)
         return;
 
-      const token = tokensInfo.current[0];
+      const token = tokensInfo.current[tokenIndex];
       const select_range = select_token(self.current, token);
-      getSelection()?.removeAllRanges();
-      getSelection()?.addRange(select_range);
+      setTokenRect(select_range.getBoundingClientRect());
+      // getSelection()?.removeAllRanges();
+      // getSelection()?.addRange(select_range);
+    }
+    
+    const onSliderChange = function(new_val: any) {
+      setTokenIndex(new_val.target.value);
+    }
+
+    let grammar = <></>
+    if(tokenRect && self && self.current) {
+      grammar = <SuggestGrammarHighlight rect={tokenRect}></SuggestGrammarHighlight>
     }
     
     return (
       <TextContainer>
+        {grammar}
         <TextInput 
           ref={self} 
           contentEditable 
           suppressContentEditableWarning 
           spellCheck="false"
           onInput={onChange}>
-        </TextInput> 
-        <button onClick={test_select}> Test Select </button> 
+        </TextInput>
+        <span>
+          <input type="range" min={0} max={tokenRange} onChange={onSliderChange}></input>
+          <button onClick={test_select}> Test Select </button>
+        </span>
       </TextContainer>
     );
 }
