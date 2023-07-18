@@ -96,6 +96,10 @@ const TextEditor: FC = (): ReactElement => {
     
     return (
       <TextContainer>
+        <span>
+          <button>Refazer</button>
+          <button>Desfazer</button>
+        </span>
         {grammar}
         <TextInput 
           ref={self} 

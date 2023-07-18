@@ -1,8 +1,9 @@
-import React, { FC, ReactElement, useState, useRef } from 'react';
+import React, { FC, ReactElement, useState, useRef, useContext } from 'react';
 import { styled } from 'styled-components';
 import SuggestGrammarPopup from './SuggestGrammarPopup';
 import { TokenInfo } from '../../Business/TextEditor/TextEditorTokenizer';
 import { getTextWidth } from '../../Business/TextEditor/TextTokenSelector';
+import { AppContext } from '../../AppContext';
 
 export type SuggestGrammarProps = {
     rect: DOMRect;

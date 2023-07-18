@@ -1,6 +1,6 @@
 import { ICommand } from "./ICommand";
 
-class CommandsHistory
+export class CommandsHistory
 {
     private execute_history: ICommand[] = [];
     private undo_history: ICommand[] = [];
@@ -10,6 +10,9 @@ class CommandsHistory
     {
         this.history_size = history_size;
     }
+
+    public getExecuteHistorySize(): number { return this.execute_history.length; }
+    public getUndoHistorySize(): number { return this.undo_history.length; }
 
     public add_command(cmd: ICommand)
     {
