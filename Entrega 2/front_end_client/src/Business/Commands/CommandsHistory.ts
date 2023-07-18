@@ -26,8 +26,10 @@ export class CommandsHistory
     public undo_last_command()
     {
         const cmd: ICommand | undefined = this.execute_history.pop();
-        if(!cmd)
+        if(!cmd) {
+            console.log("No command to undo...");
             return;
+        }
 
         cmd.undo();
         this.undo_history.push(cmd);
@@ -38,10 +40,12 @@ export class CommandsHistory
     public redo_last_command()
     {
         const cmd: ICommand | undefined = this.undo_history.pop();
-        if(!cmd)
+        if(!cmd) {
+            console.log("No command to redo...");
             return;
+        }
 
-        cmd.undo();
+        cmd.execute();
         this.execute_history.push(cmd);
         if(this.execute_history.length > this.history_size)
             this.execute_history.shift();

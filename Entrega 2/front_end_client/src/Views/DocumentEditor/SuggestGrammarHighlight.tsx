@@ -36,6 +36,7 @@ const HighLightDiv = styled.div<HighlightProps>`
 
 const SuggestGrammarHighlight: FC<SuggestGrammarProps> = (props: SuggestGrammarProps): ReactElement => {
     const [showSuggestGrammar, setShowSuggestGrammar] = useState<boolean>(false);
+    const appContext = useContext(AppContext);
 
     const handleClick = function() {
         setShowSuggestGrammar(!showSuggestGrammar);
@@ -48,12 +49,13 @@ const SuggestGrammarHighlight: FC<SuggestGrammarProps> = (props: SuggestGrammarP
         const height = props.rect.height;
         popup = 
         <SuggestGrammarPopup 
-        width={width} 
-        height={height} 
-        word_suggestion={props.word_suggestion}
-        accept_grammar_suggestion={props.accept_grammar_suggestion}
-        word_token={props.word_token}
-        cancel_suggestion={props.cancel_suggest_grammar}/>
+            width={width} 
+            height={height} 
+            word_suggestion={props.word_suggestion}
+            accept_grammar_suggestion={props.accept_grammar_suggestion}
+            word_token={props.word_token}
+            cancel_suggestion={props.cancel_suggest_grammar}
+        />
     }
 
     return (

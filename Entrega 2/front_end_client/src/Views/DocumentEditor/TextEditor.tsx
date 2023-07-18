@@ -1,8 +1,10 @@
-import React, { FC, ReactElement, useState, useRef } from 'react';
+import React, { FC, ReactElement, useState, useRef, useContext } from 'react';
 import { styled } from 'styled-components';
 import { process_tokens, TokenInfo, TokenChanges } from '../../Business/TextEditor/TextEditorTokenizer';
 import { select_token } from '../../Business/TextEditor/TextTokenSelector';
 import SuggestGrammarHighlight from './SuggestGrammarHighlight';
+import { AppContext } from '../../AppContext';
+import { AcceptGrammarSuggestionCommand } from '../../Business/Commands/AcceptGrammarSuggestionCommand';
 
 const TextContainer = styled.div`
   height: max(85vh, 350px);
@@ -38,6 +40,7 @@ const TextEditor: FC = (): ReactElement => {
 
     const tokensInfo = useRef<TokenInfo[]>([]);
     const self = useRef<HTMLDivElement>(null);
+    const appContext = useContext(AppContext);
 
     const updateTokens = function(new_text: string) {
       const [new_tokens, changes] = process_tokens(new_text, tokensInfo.current);
@@ -52,21 +55,20 @@ const TextEditor: FC = (): ReactElement => {
       const selection = window.getSelection();
       if(!self || !self.current || !selection)
         return;
-
+      
       var tk = tokensInfo.current.find(x => x.uuid === token.uuid);
       if(!tk)
         return;
-
+      
       const select_range = select_token(self.current, tk);
       selection.removeAllRanges();
       selection.addRange(select_range);
 
-      if(selection.focusNode && selection.focusNode.textContent) {
-        let text = selection.focusNode.textContent;
-        let new_text = text.substring(0, token.range_start) + new_word + text.substring(token.range_end, text.length);
-        selection.focusNode.textContent = new_text;
-        updateTokens(self.current.innerText);
-      }
+      if(!selection.focusNode || !selection.focusNode.textContent)
+        return;
+
+      const acceptSuggestionCmd = new AcceptGrammarSuggestionCommand(self.current, selection.focusNode.textContent, token, new_word, updateTokens);
+      appContext?.getCmdHistory().add_command(acceptSuggestionCmd);
     }
 
     const test_select = function() {
@@ -97,8 +99,8 @@ const TextEditor: FC = (): ReactElement => {
     return (
       <TextContainer>
         <span>
-          <button>Refazer</button>
-          <button>Desfazer</button>
+          <button onClick={() => appContext?.getCmdHistory().undo_last_command()}>Desfazer</button>
+          <button onClick={() => appContext?.getCmdHistory().redo_last_command()}>Refazer</button>
         </span>
         {grammar}
         <TextInput 
