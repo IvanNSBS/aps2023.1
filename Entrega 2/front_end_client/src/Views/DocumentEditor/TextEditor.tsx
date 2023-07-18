@@ -43,6 +43,7 @@ const TextEditor: FC = (): ReactElement => {
       const [new_tokens, changes] = process_tokens(new_text, tokensInfo.current);
       tokensInfo.current = new_tokens;
       setTokenRange(new_tokens.length-1);
+      console.log(new_tokens);
     }
 
     const onChange = function(evt: any) { updateTokens(evt.target.innerText); }
@@ -64,7 +65,7 @@ const TextEditor: FC = (): ReactElement => {
         let text = selection.focusNode.textContent;
         let new_text = text.substring(0, token.range_start) + new_word + text.substring(token.range_end, text.length);
         selection.focusNode.textContent = new_text;
-        updateTokens(new_text);
+        updateTokens(self.current.innerText);
       }
     }
 
