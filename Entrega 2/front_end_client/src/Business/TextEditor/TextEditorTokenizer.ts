@@ -30,7 +30,7 @@ const compare_tokens = function(a: TokenInfo, b: TokenInfo): boolean {
 
 export const process_tokens = function(page_content: string, prev_tokens: TokenInfo[]) : [TokenInfo[], TokenChanges[]]
 {
-    const words = page_content.split(/(\s+)/) || []; 
+    const words = page_content.split(/(\s+)/) || [];
     const tokens: TokenInfo[] = [];
     const changes: TokenChanges[] = [];
 
@@ -41,10 +41,10 @@ export const process_tokens = function(page_content: string, prev_tokens: TokenI
     {
         const is_line_break = /\r|\n/.exec(words[i]);
         const is_empty_str = words[i] == "";
-
         if(is_line_break)
         {
-            current_row = current_row + 1;
+            const break_count = Math.ceil(words[i].length / 2);
+            current_row = current_row + break_count;
             range_start = 0;
             continue;
         }
