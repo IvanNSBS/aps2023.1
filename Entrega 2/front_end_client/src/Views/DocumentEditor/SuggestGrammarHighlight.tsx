@@ -8,6 +8,8 @@ export type SuggestGrammarProps = {
     rect: DOMRect;
     word_token: TokenInfo;
     word_suggestion: string;
+    accept_grammar_suggestion(word_token: TokenInfo, new_word: string): void;
+    cancel_suggest_grammar(): void;
 };
 
 type HighlightProps = {
@@ -43,7 +45,14 @@ const SuggestGrammarHighlight: FC<SuggestGrammarProps> = (props: SuggestGrammarP
     {
         const width = getTextWidth(props.word_suggestion , "12px Helvetica");
         const height = props.rect.height;
-        popup = <SuggestGrammarPopup width={width} height={height} word_suggestion={props.word_suggestion}></SuggestGrammarPopup>
+        popup = 
+        <SuggestGrammarPopup 
+        width={width} 
+        height={height} 
+        word_suggestion={props.word_suggestion}
+        accept_grammar_suggestion={props.accept_grammar_suggestion}
+        word_token={props.word_token}
+        cancel_suggestion={props.cancel_suggest_grammar}/>
     }
 
     return (

@@ -1,10 +1,14 @@
 import React, { FC, ReactElement } from 'react';
 import { styled } from 'styled-components';
+import { TokenInfo } from '../../Business/TextEditor/TextEditorTokenizer';
 
 export type SuggestPopupProps = {
     width: number;
     height: number;
+    word_token: TokenInfo;
     word_suggestion: string;
+    accept_grammar_suggestion(word_token: TokenInfo, new_word: string): void;
+    cancel_suggestion(): void;
 }
 
 type PopupDivProps = {
@@ -54,10 +58,20 @@ const Word = styled.span`
 `
 
 const SuggestGrammarPopup: FC<SuggestPopupProps> = (props: SuggestPopupProps): ReactElement => {
+
+    const handleConfirmSuggestion = function() {
+        props.accept_grammar_suggestion(props.word_token, props.word_suggestion);
+        handleCancel();
+    }
+
+    const handleCancel = function() {
+        props.cancel_suggestion();
+    }
+
     return (
-        <PopupDiv width={props.width} height={props.height}>
-            <Word>{props.word_suggestion}</Word>
-            <RejectSuggestionBtn>x</RejectSuggestionBtn>
+        <PopupDiv width={props.width} height={props.height} onClick={handleCancel}>
+            <Word onClick={handleConfirmSuggestion}>{props.word_suggestion}</Word>
+            <RejectSuggestionBtn onClick={handleCancel}>x</RejectSuggestionBtn>
         </PopupDiv>
     );
 }

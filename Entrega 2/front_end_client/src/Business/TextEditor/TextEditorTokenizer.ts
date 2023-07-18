@@ -1,4 +1,8 @@
+import { randomUUID } from "crypto";
+import {v4 as uuidv4} from "uuid";
+
 export type TokenInfo = {
+    uuid: string;
     word: string;
     row: number;
     range_start: number;
@@ -51,6 +55,7 @@ export const process_tokens = function(page_content: string, prev_tokens: TokenI
 
         let range_end = range_start + words[i].length;
         tokens.push({
+            uuid: uuidv4(),
             word: words[i], 
             row: current_row,
             range_start: range_start,

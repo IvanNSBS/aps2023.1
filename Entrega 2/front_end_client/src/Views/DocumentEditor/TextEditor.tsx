@@ -39,12 +39,33 @@ const TextEditor: FC = (): ReactElement => {
     const tokensInfo = useRef<TokenInfo[]>([]);
     const self = useRef<HTMLDivElement>(null);
 
-    const onChange = function(evt: any) {
-      const [new_tokens, changes] = process_tokens(evt.target.innerText, tokensInfo.current);
-      console.log(changes);
-      
+    const updateTokens = function(new_text: string) {
+      const [new_tokens, changes] = process_tokens(new_text, tokensInfo.current);
       tokensInfo.current = new_tokens;
       setTokenRange(new_tokens.length-1);
+    }
+
+    const onChange = function(evt: any) { updateTokens(evt.target.innerText); }
+
+    const acceptGrammarSuggestion = function(token: TokenInfo, new_word: string): void {
+      const selection = window.getSelection();
+      if(!self || !self.current || !selection)
+        return;
+
+      var tk = tokensInfo.current.find(x => x.uuid === token.uuid);
+      if(!tk)
+        return;
+
+      const select_range = select_token(self.current, tk);
+      selection.removeAllRanges();
+      selection.addRange(select_range);
+
+      if(selection.focusNode && selection.focusNode.textContent) {
+        let text = selection.focusNode.textContent;
+        let new_text = text.substring(0, token.range_start) + new_word + text.substring(token.range_end, text.length);
+        selection.focusNode.textContent = new_text;
+        updateTokens(new_text);
+      }
     }
 
     const test_select = function() {
@@ -63,7 +84,13 @@ const TextEditor: FC = (): ReactElement => {
 
     let grammar = <></>
     if(tokenRect && self && self.current) {
-      grammar = <SuggestGrammarHighlight rect={tokenRect} word_suggestion='lorem ipsummmmmasdasdasdsam' word_token={tokensInfo.current[tokenIndex]}></SuggestGrammarHighlight>
+      grammar = 
+      <SuggestGrammarHighlight 
+        rect={tokenRect} 
+        word_suggestion='lorem ipsummmmmasdasdasdsam'
+        word_token={tokensInfo.current[tokenIndex]}
+        accept_grammar_suggestion={acceptGrammarSuggestion}
+        cancel_suggest_grammar={() => setTokenRect(undefined)}/>
     }
     
     return (
