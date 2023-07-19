@@ -37,7 +37,7 @@ namespace webserver
 
         [HttpDelete]
         [Route("delete_document/{documentId}")]
-        public async Task<ActionResult<bool>> DeleteDocument(string documentId)
+        public ActionResult<bool> DeleteDocument(string documentId)
         {
             return _repo.DeleteDocument(documentId);
         }

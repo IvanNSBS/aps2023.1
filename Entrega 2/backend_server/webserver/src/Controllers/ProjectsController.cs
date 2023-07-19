@@ -106,7 +106,7 @@ namespace webserver
 
         [HttpDelete]
         [Route("delete_project/{projectId}")]
-        public async Task<ActionResult<bool>> DeleteProject(string projectId)
+        public ActionResult<bool> DeleteProject(string projectId)
         {
             return _projectsRepo.DeleteProject(projectId);
         }
