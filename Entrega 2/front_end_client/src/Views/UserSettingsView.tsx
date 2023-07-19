@@ -145,7 +145,6 @@ const UserSettingsView: FC<UserSettingsProps> = (props: UserSettingsProps): Reac
         event.preventDefault();
         const userId = appCtx?.getUserId();
         if(!userId) {
-            alert("problem!");
             return;
         }
         
@@ -160,12 +159,10 @@ const UserSettingsView: FC<UserSettingsProps> = (props: UserSettingsProps): Reac
         setUsernameWasEmpty(emptyUsername);
         setPasswordWasEmpty(emptyPassword);
         if(emptyEmail || emptyUsername || emptyPassword){
-            alert("empty!");
             return;
         }
             
         const updated = await userController.updateUserData(userId, email, username, password);
-        alert("update!")
         if(updated)
         {
             alert("Os dados do usuário foram atualizados");
