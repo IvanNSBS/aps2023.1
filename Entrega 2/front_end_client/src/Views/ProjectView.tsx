@@ -26,10 +26,17 @@ const Header = styled.div`
     justify-content: space-between;
 `
 
+const ProjectNameInput = styled.input`
+    border: 0px;
+    font-size: 18px;
+    margin-bottom: 10px;
+`
+
 const ProjectView: FC<ProjectsProps> = (props: ProjectsProps): ReactElement => {
     const appCtx = useContext(AppContext);
     const projectsPresenter = props.projectsPresenter;
     const [documents, setDocuments] = useState<ItemInfo[]>([]);
+    const [projectName, setProjectName] = useState<string>("");
     const navigate = useNavigate();
 
     useState(() => {
@@ -37,6 +44,7 @@ const ProjectView: FC<ProjectsProps> = (props: ProjectsProps): ReactElement => {
         if(!projectInfo)
             return;
 
+        setProjectName(projectInfo.name);
         const fetchData = async function(){
             const allDocs = await projectsPresenter.getAllProjectDocuments(projectInfo.id);
             if(!allDocs)
@@ -82,11 +90,37 @@ const ProjectView: FC<ProjectsProps> = (props: ProjectsProps): ReactElement => {
         navigate(-1);
     }
 
+    const changeProjectName = async function(evt: any){
+        evt.preventDefault();
+        const project = appCtx?.getCurrentProjectInfo();
+        if(!project)
+            return;
+
+        const value = evt.target.value? evt.target.value : evt.target.project_name.value;
+        const didntChange: boolean = value === projectName;
+        if(didntChange){
+            return;
+        }
+
+        setProjectName(value);
+        projectsPresenter.changeProjectName(project.id, value);
+    }
+
     return (
         <div>
             <Header>
-                <p>{appCtx?.getCurrentProjectInfo()?.name} View</p>
-                <button onClick={ () => appCtx?.logout() }>Logout</button>
+                <form onSubmit={changeProjectName}>
+                    <ProjectNameInput 
+                        spellCheck="false"
+                        defaultValue={appCtx?.getCurrentProjectInfo()?.name}
+                        name="project_name"
+                        onBlur={changeProjectName}
+                    ></ProjectNameInput>
+                </form>
+                <div>
+                    <button onClick={goToPreviousPage}>Voltar</button>
+                    <button onClick={ () => appCtx?.logout() }>Logout</button>
+                </div>
             </Header>
             <Cont>
                 <ProjectsContainer>
@@ -101,11 +135,11 @@ const ProjectView: FC<ProjectsProps> = (props: ProjectsProps): ReactElement => {
                         )
                     }
                 </ProjectsContainer>
-                <button onClick={goToPreviousPage}>Voltar</button>
             </Cont>
-            <div>
+            <Header>
                 <button onClick={create_document}>Criar Novo Documento</button>
-            </div>
+                <button onClick={create_document}>Deletar Projeto</button>
+            </Header>
         </div>
     )
 }

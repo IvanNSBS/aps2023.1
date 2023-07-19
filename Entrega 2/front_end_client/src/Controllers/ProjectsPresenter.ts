@@ -86,8 +86,6 @@ export class ProjectsPresenter
         try
         {
             const res = await axios.get(endpoint);
-            console.log("get response!");
-            console.log(res);
             const data = res.data;
             let documentsInfo: ItemInfo[] = [];
 
@@ -108,6 +106,25 @@ export class ProjectsPresenter
         catch(error)
         {
             return undefined;
+        }
+    }
+
+    public async changeProjectName(projectId: string, newName: string): Promise<boolean> {
+        
+        try
+        {
+            const endpoint = `${this.url}/set_project_name`;
+            const jsonData = {
+                "project_id": projectId,
+                "new_name": newName
+            }
+            console.log(jsonData);
+            const {data} = await axios.put(endpoint, jsonData);
+            return data;
+        }
+        catch
+        {
+            return false;
         }
     }
 }

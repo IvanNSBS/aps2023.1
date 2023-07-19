@@ -82,5 +82,26 @@ namespace webserver
 
             return documentId;
         }
+
+        [HttpPut]
+        [Route("set_project_name")]
+        public async Task<ActionResult<bool>> ChangeProjectName()
+        {
+            Console.WriteLine("awiodasjdas");
+            using var reader = new StreamReader(HttpContext.Request.Body);
+            var body = await reader.ReadToEndAsync();
+            
+            var data = JsonConvert.DeserializeObject<JObject>(body);
+            if(data == null)
+                return StatusCode(500, "Invalid request body");
+            
+            string? projectId = data.SelectToken("project_id")?.Value<string>();
+            string? newName = data.SelectToken("new_name")?.Value<string>();
+            if(projectId == null || newName == null)
+                return StatusCode(404, "Invalid Project Id or new project name");
+
+            bool changedNames = _projectsRepo.ChangeProjectName(projectId, newName);
+            return changedNames;
+        }
     }
 }

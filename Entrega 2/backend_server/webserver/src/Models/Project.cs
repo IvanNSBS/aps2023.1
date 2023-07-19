@@ -11,7 +11,7 @@ namespace webserver
         [Required]
         [MinLength(5, ErrorMessage = "This field must contain at minimum 5 characters")]
         [MaxLength(30, ErrorMessage = "This field must contain at most 30 characters")]
-        public string ProjectName { get; private set; }
+        public string ProjectName { get; set; }
 
         [ForeignKey("OwnerFK")]
         public Account Owner { get; private set; } 
