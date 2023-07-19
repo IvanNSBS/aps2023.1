@@ -10,8 +10,8 @@ namespace webserver
 
         [Required]
         [MinLength(1)]
-        public string DocumentName { get; private set; }
-        public string? Content { get; private set; }
+        public string DocumentName { get; set; }
+        public string? Content { get; set; }
         public List<string>? LinkedDocuments { get; private set; }
 
 

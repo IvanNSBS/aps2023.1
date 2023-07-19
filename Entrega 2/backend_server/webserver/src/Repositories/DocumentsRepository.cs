@@ -6,6 +6,7 @@ namespace webserver
     {
         IdNameTuple[] GetAllProjectDocuments(string projectId);
         string CreateDocument(string projectId, string documentName);
+        bool ChangeDocumentName(string documentId, string newName);
     }
 
     public class DocumentsRepository : IDocumentsRepository
@@ -44,6 +45,25 @@ namespace webserver
                 db.SaveChanges();
 
                 return uuid;
+            }
+        }
+
+        public bool ChangeDocumentName(string documentId, string newName)
+        {
+            using(var scope = _scopeFactory.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                Document? document = db.Documents.FirstOrDefault(x => x.Id == documentId);
+                if(document == null) {
+                    Console.WriteLine($"There's no document with id {documentId}");
+                    return false;
+                }
+
+                string uuid = Guid.NewGuid().ToString();
+                document.DocumentName = newName;
+                db.SaveChanges();
+
+                return true;
             }
         }
     }

@@ -118,7 +118,6 @@ export class ProjectsPresenter
                 "project_id": projectId,
                 "new_name": newName
             }
-            console.log(jsonData);
             const {data} = await axios.put(endpoint, jsonData);
             return data;
         }

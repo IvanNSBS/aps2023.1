@@ -14,5 +14,25 @@ namespace webserver
         {
             _repo = repo;
         }
+
+        [HttpPut]
+        [Route("set_document_name")]
+        public async Task<ActionResult<bool>> ChangeProjectName()
+        {
+            using var reader = new StreamReader(HttpContext.Request.Body);
+            var body = await reader.ReadToEndAsync();
+            
+            var data = JsonConvert.DeserializeObject<JObject>(body);
+            if(data == null)
+                return StatusCode(500, "Invalid request body");
+            
+            string? documentId = data.SelectToken("document_id")?.Value<string>();
+            string? newName = data.SelectToken("new_name")?.Value<string>();
+            if(documentId == null || newName == null)
+                return StatusCode(404, "Invalid Document Id or new document name");
+
+            bool changedNames = _repo.ChangeDocumentName(documentId, newName);
+            return changedNames;
+        }
     }
 }
