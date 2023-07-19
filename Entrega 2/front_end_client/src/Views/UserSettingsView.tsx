@@ -1,8 +1,8 @@
-import React, { FC, ReactElement, useContext, useRef, useState } from 'react';
+import React, { FC, ReactElement, useContext, useEffect, useRef, useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import { styled } from 'styled-components';
 import { AppContext } from '../AppContext';
-import { UserController } from '../Controllers/UserController';
+import { UserAccount, UserController } from '../Controllers/UserController';
 
 type UserSettingsProps = {
     userController: UserController;
@@ -52,9 +52,29 @@ const UserSettingsView: FC<UserSettingsProps> = (props: UserSettingsProps): Reac
     const appCtx = useContext(AppContext);
     const userController: UserController = props.userController;
 
+    const [userInfo, setUserInfo] = useState<UserAccount|undefined>(undefined);
     const [emailWasEmpty, setEmailWasEmpty] = useState<boolean>(false);
     const [usernameWasEmpty, setUsernameWasEmpty] = useState<boolean>(false);
     const [passwordWasEmpty, setPasswordWasEmpty] = useState<boolean>(false);
+
+    useEffect(() => {
+        const fetchUserData = async function(){
+            const userId = appCtx?.getUserId();
+            if(!userId)
+                return;
+
+            const info = await userController.getUserAccountInfo(userId);
+            if(!info){
+                alert("something went wrong when fetching user info");
+                return;
+            }
+            
+            console.log(info);
+            setUserInfo(info);
+        }
+
+        fetchUserData();
+    }, []);
 
     const handleSubmitUpdateUserInfo = async function(event: any) {
         event.preventDefault();
@@ -103,21 +123,21 @@ const UserSettingsView: FC<UserSettingsProps> = (props: UserSettingsProps): Reac
                 <InputLabel>
                     Email:
                     <InputContainer>
-                        <input type='email' id="email" name="email"/>
+                        <input type='email' id="email" name="email" defaultValue={userInfo?.email}/>
                         {requiredEmailMsg}
                     </InputContainer>
                 </InputLabel>
                 <InputLabel>
                     Username:
                     <InputContainer>
-                        <input type='text' id="username" name="username"/>
+                        <input type='text' id="username" name="username" defaultValue={userInfo?.username}/>
                         {requiredUsernameMsg}
                     </InputContainer>
                 </InputLabel>
                 <InputLabel>
                     Password:
                     <InputContainer>
-                        <input type='password' id="password" name="password"/>
+                        <input type='password' id="password" name="password" defaultValue={userInfo?.password}/>
                         {requiredPasswordMsg}
                     </InputContainer>
                 </InputLabel>

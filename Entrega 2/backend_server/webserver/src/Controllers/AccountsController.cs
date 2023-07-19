@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
+
 namespace webserver
 {
     [Route("accounts")]
@@ -67,6 +68,18 @@ namespace webserver
         public ActionResult<bool> DeleteUser(string userId)
         {
             return _repo.DeleteUser(userId);
+        }
+
+        [HttpGet]
+        [Route("get_user_info/{userId}")]
+        public ActionResult<string> GetUserInfo(string userId)
+        {
+            AccountInfo? accInfo = _repo.GetAccountInfo(userId);
+            if(accInfo == null)
+                return StatusCode(404, "There's no username with this id");
+        
+            string accInfoJson = JsonConvert.SerializeObject(accInfo);
+            return Ok(accInfoJson);
         }
 
         [HttpPut]

@@ -68,5 +68,22 @@ namespace webserver
                 return true;
             }
         }
+
+        public AccountInfo? GetAccountInfo(string accountId)
+        {
+            using(var scope = _scopeFactory.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                Account? account = db.Accounts.FirstOrDefault(x => x.Id == accountId);
+                if(account == null)
+                    return null;
+
+                return new AccountInfo {
+                    email=account.UserEmail, 
+                    username=account.Username, 
+                    password=account.Password 
+                };
+            }
+        }
     }
 }
