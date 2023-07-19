@@ -1,7 +1,8 @@
-import React, { FC, ReactElement } from 'react';
+import React, { FC, ReactElement, useContext } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { styled } from 'styled-components';
 import TextEditor from './TextEditor';
+import { AppContext } from '../../AppContext';
 
 type DocumentEditorView = {
 
@@ -26,13 +27,18 @@ const EditorHeader = styled.div`
 
 const DocumentEditorView: FC<DocumentEditorView> = (props: DocumentEditorView): ReactElement => {
     const navigate = useNavigate();
-    const { state } = useLocation();
+    const appCtx = useContext(AppContext);
+
+    const goToPreviousPage = function(){
+        appCtx?.setCurrentDocumentInfo(undefined);
+        navigate(-1);
+    }
 
     return (
         <EditorContainer>
             <EditorHeader>
-                <p>Edit {state.document_name} View</p>
-                <button onClick={() => navigate(-1)}>Voltar</button>
+                <p>Edit {appCtx?.getCurrentDocumentInfo()?.name} View</p>
+                <button onClick={goToPreviousPage}>Voltar</button>
             </EditorHeader>
             <TextEditor></TextEditor>
         </EditorContainer>

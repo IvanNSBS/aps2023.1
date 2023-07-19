@@ -20,6 +20,11 @@ const ProjectsContainer = styled.div`
 const Cont = styled.div`
 `
 
+const Header = styled.div`
+    display: flex;
+    justify-content: space-between;
+`
+
 const AllProjectsView: FC<ProjectsProps> = (props: ProjectsProps): ReactElement => {
     const projectsPresenter = props.projectsPresenter;
     const appCtx = useContext(AppContext);
@@ -81,9 +86,10 @@ const AllProjectsView: FC<ProjectsProps> = (props: ProjectsProps): ReactElement 
 
     return (
         <div>
-            <span>
+            <Header>
                 <p>All Projects View</p>
-            </span>
+                <button onClick={ () => appCtx?.logout() }>Logout</button>
+            </Header>
             <Cont>
                 <ProjectsContainer>
                     {
@@ -99,7 +105,6 @@ const AllProjectsView: FC<ProjectsProps> = (props: ProjectsProps): ReactElement 
                 </ProjectsContainer>
             </Cont>
             <button onClick={create_project}>Criar Novo Projeto</button>
-            <a href={AppRoutes.login}>Logout</a>
         </div>
     )
 }

@@ -20,6 +20,12 @@ const ProjectsContainer = styled.div`
 const Cont = styled.div`
 `
 
+
+const Header = styled.div`
+    display: flex;
+    justify-content: space-between;
+`
+
 const ProjectView: FC<ProjectsProps> = (props: ProjectsProps): ReactElement => {
     const appCtx = useContext(AppContext);
     const projectsPresenter = props.projectsPresenter;
@@ -31,8 +37,6 @@ const ProjectView: FC<ProjectsProps> = (props: ProjectsProps): ReactElement => {
         if(!projectInfo)
             return;
 
-        console.log("project info:");
-        console.log(projectInfo.id);
         const fetchData = async function(){
             const allDocs = await projectsPresenter.getAllProjectDocuments(projectInfo.id);
             if(!allDocs)
@@ -69,15 +73,21 @@ const ProjectView: FC<ProjectsProps> = (props: ProjectsProps): ReactElement => {
 
     const on_click_document = function(document: ItemInfo) {
         console.log(`Clicked on document: ${document.name}`)
-        const navigate_data = { state: { document_name: document} };
-        navigate(AppRoutes.edit_document, navigate_data);
+        appCtx?.setCurrentDocumentInfo(document);
+        navigate(AppRoutes.edit_document);
+    }
+
+    const goToPreviousPage = function(){
+        appCtx?.setCurrentProjectInfo(undefined);
+        navigate(-1);
     }
 
     return (
         <div>
-            <span>
+            <Header>
                 <p>{appCtx?.getCurrentProjectInfo()?.name} View</p>
-            </span>
+                <button onClick={ () => appCtx?.logout() }>Logout</button>
+            </Header>
             <Cont>
                 <ProjectsContainer>
                     {
@@ -85,16 +95,17 @@ const ProjectView: FC<ProjectsProps> = (props: ProjectsProps): ReactElement => {
                             <ProjectGridItem
                                 id={item.id} 
                                 name={item.name} 
-                                key={item.name} 
+                                key={item.id} 
                                 on_click={() => on_click_document(item)}
                             ></ProjectGridItem>
                         )
                     }
                 </ProjectsContainer>
-                <button onClick={() => navigate(-1)}>Voltar</button>
+                <button onClick={goToPreviousPage}>Voltar</button>
             </Cont>
-            <button onClick={create_document}>Criar Novo Documento</button>
-            <a href={AppRoutes.login}>Logout</a>
+            <div>
+                <button onClick={create_document}>Criar Novo Documento</button>
+            </div>
         </div>
     )
 }
