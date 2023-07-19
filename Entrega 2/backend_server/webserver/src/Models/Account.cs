@@ -9,15 +9,15 @@ namespace webserver
         public string Id { get; private set; }
 
         [Required]
-        public string UserEmail { get; private set; }
+        public string UserEmail { get; set; }
 
         [Required]
         [MinLength(5, ErrorMessage = "This field must contain at minimum 5 characters")]
-        public string Username { get; private set; }
+        public string Username { get; set; }
 
         [Required]
         [MinLength(5, ErrorMessage = "This field must contain at minimum 5 characters")]
-        public string Password { get; private set; }
+        public string Password { get; set; }
 
         public Account(string id, string userEmail, string username, string password)
         {

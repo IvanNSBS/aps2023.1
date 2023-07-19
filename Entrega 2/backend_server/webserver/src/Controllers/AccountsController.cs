@@ -93,13 +93,14 @@ namespace webserver
             if(data == null)
                 return StatusCode(400, "Invalid request body");
             
+            string? userId = data.SelectToken("userId")?.Value<string>();
             string? email = data.SelectToken("email")?.Value<string>();
             string? username = data.SelectToken("username")?.Value<string>();
             string? password = data.SelectToken("password")?.Value<string>();
-            if(email == null || username == null || password == null)
-                return StatusCode(404, "Invalid Email, Username or Password");
+            if(userId == null || email == null || username == null || password == null)
+                return StatusCode(404, "Invalid AccountId, Email, Username or Password");
 
-            bool created = _repo.CreateUser(email, username, password);
+            bool created = _repo.UpdateUser(userId, email, username, password);
             if(created)
                 return Ok("User Created!");
             

@@ -10,12 +10,13 @@ export class UserController
 {
     private url: string = "http://127.0.0.1:5000/accounts"
 
-    public async updateUserData(email: string, username: string, password: string): Promise<boolean>
+    public async updateUserData(userId: string, email: string, username: string, password: string): Promise<boolean>
     {
         try
         {
             const endpoint = `${this.url}/update_user_info`; 
             const jsonData = {
+                "userId": userId,
                 "email": email,
                 "username": username,
                 "password": password

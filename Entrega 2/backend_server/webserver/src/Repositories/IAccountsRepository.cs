@@ -13,5 +13,6 @@ namespace webserver
         string? ValidateUser(string userEmail, string password);
         AccountInfo? GetAccountInfo(string accountId);
         bool DeleteUser(string userId);
+        bool UpdateUser(string userId, string newEmail, string newUsername, string newPassword);
     }
 }

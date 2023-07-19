@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { styled } from 'styled-components';
 import { AppContext } from '../AppContext';
 import { UserAccount, UserController } from '../Controllers/UserController';
+import { app } from '@tauri-apps/api';
 
 type UserSettingsProps = {
     userController: UserController;
@@ -142,7 +143,12 @@ const UserSettingsView: FC<UserSettingsProps> = (props: UserSettingsProps): Reac
 
     const handleSubmitUpdateUserInfo = async function(event: any) {
         event.preventDefault();
-
+        const userId = appCtx?.getUserId();
+        if(!userId) {
+            alert("problem!");
+            return;
+        }
+        
         const email: string = event.target.email.value;
         const username: string = event.target.username.value;
         const password: string = event.target.password.value;
@@ -153,10 +159,13 @@ const UserSettingsView: FC<UserSettingsProps> = (props: UserSettingsProps): Reac
         setEmailWasEmpty(emptyEmail);
         setUsernameWasEmpty(emptyUsername);
         setPasswordWasEmpty(emptyPassword);
-        if(emptyEmail || emptyUsername || emptyPassword)
+        if(emptyEmail || emptyUsername || emptyPassword){
+            alert("empty!");
             return;
+        }
             
-        const updated = await userController.updateUserData(email, username, password);
+        const updated = await userController.updateUserData(userId, email, username, password);
+        alert("update!")
         if(updated)
         {
             alert("Os dados do usuário foram atualizados");
@@ -171,12 +180,18 @@ const UserSettingsView: FC<UserSettingsProps> = (props: UserSettingsProps): Reac
 
     const handleDeleteUser = async function()
     {
+        if(!appCtx?.getUserId())
+            return;
+
         if(await confirm(
             "Essa ação é irreversível.\n" +
             "Você perderá todos os seus projetos e documentos. " + 
             "Tem certeza de que quer fazer isso?")
         )
         {
+            const deleted = await userController.deleteUser(appCtx.getUserId());
+            if(deleted)
+                appCtx?.logout();
         }
     }
 

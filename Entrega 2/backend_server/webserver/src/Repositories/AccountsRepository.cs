@@ -65,6 +65,7 @@ namespace webserver
                 }
 
                 db.Accounts.Remove(account);
+                db.SaveChanges();
                 return true;
             }
         }
@@ -83,6 +84,25 @@ namespace webserver
                     username=account.Username, 
                     password=account.Password 
                 };
+            }
+        }
+
+        public bool UpdateUser(string userId, string newEmail, string newUsername, string newPassword)
+        {
+            using(var scope = _scopeFactory.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                Account? account = db.Accounts.FirstOrDefault(x => x.Id == userId );
+                if( account == null ){
+                    Console.WriteLine($"account not found for {userId}");
+                    return false;
+                }
+
+                account.UserEmail = newEmail;
+                account.Username = newUsername;
+                account.Password = newPassword;
+                db.SaveChanges();
+                return true;
             }
         }
     }
