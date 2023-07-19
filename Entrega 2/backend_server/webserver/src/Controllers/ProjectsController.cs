@@ -54,7 +54,9 @@ namespace webserver
         [Route("get_project_documents/{projectId}")]
         public ActionResult<string> GetProjectDocuments(string projectId)
         {
-            return string.Join(",", _docsRepo.GetAllProjectDocuments(projectId));
+            var allDocuments = _docsRepo.GetAllProjectDocuments(projectId);
+            string allDocsJson = JsonConvert.SerializeObject(allDocuments);
+            return allDocsJson;
         }
 
         [HttpPost]

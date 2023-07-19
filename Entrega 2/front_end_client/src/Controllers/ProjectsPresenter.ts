@@ -80,8 +80,34 @@ export class ProjectsPresenter
         }
     }
 
-    public getAllProjectDocuments(projectId: string)
+    public async getAllProjectDocuments(projectId: string): Promise<ItemInfo[] | undefined>
     {
+        const endpoint = `${this.url}/get_project_documents/${projectId}`;
+        try
+        {
+            const res = await axios.get(endpoint);
+            console.log("get response!");
+            console.log(res);
+            const data = res.data;
+            let documentsInfo: ItemInfo[] = [];
 
+            for(let i = 0; i < data.length; i++)
+            {
+                let projectInfo = data[i];
+                const docId = projectInfo.id;
+                const docName = projectInfo.name;
+
+                documentsInfo.push({
+                    id: docId,
+                    name: docName
+                });
+            }
+            
+            return documentsInfo;
+        }
+        catch(error)
+        {
+            return undefined;
+        }
     }
 }

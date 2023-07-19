@@ -1,11 +1,13 @@
-import React, { FC, ReactElement, useState } from 'react';
+import React, { FC, ReactElement, useContext, useState } from 'react';
 import AppRoutes from '../AppRoutes';
 import ProjectGridItem from './ProjectGridItem';
 import { styled } from 'styled-components';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { ItemInfo } from '../Controllers/ProjectsPresenter';
+import { ItemInfo, ProjectsPresenter } from '../Controllers/ProjectsPresenter';
+import { AppContext } from '../AppContext';
 
 type ProjectsProps = {
+    projectsPresenter: ProjectsPresenter
 }
 
 const ProjectsContainer = styled.div`
@@ -19,25 +21,50 @@ const Cont = styled.div`
 `
 
 const ProjectView: FC<ProjectsProps> = (props: ProjectsProps): ReactElement => {
-    
+    const appCtx = useContext(AppContext);
+    const projectsPresenter = props.projectsPresenter;
     const [documents, setDocuments] = useState<ItemInfo[]>([]);
-    const { state } = useLocation();
     const navigate = useNavigate();
 
-    const create_document = function() {
+    useState(() => {
+        const projectInfo = appCtx?.getCurrentProjectInfo();
+        if(!projectInfo)
+            return;
+
+        console.log("project info:");
+        console.log(projectInfo.id);
+        const fetchData = async function(){
+            const allDocs = await projectsPresenter.getAllProjectDocuments(projectInfo.id);
+            if(!allDocs)
+                return;
+
+            setDocuments(allDocs);
+        };
+
+        fetchData();
+    });
+
+    const create_document = async function() {
         let document_name = prompt("Digite o nome do documento", "Novo Documento");
         
         if (document_name == null || document_name == "") {
             console.log("canceled create document prompt");
+            return;
         } 
-        // else 
-        // {
-        //     let name_exists = documents.find(x => x == document_name) !== undefined;
-        //     if (name_exists)
-        //         alert("Já existe um documento com este nome.")
-        //     else
-        //         setDocuments([...documents, document_name])
-        // } 
+        let name_exists = documents.find(x => x.name == document_name) !== undefined;
+        if (name_exists){
+            alert("Já existe um documento com este nome.")
+            return;
+        }
+        const projectInfo = appCtx?.getCurrentProjectInfo();
+        if(!projectInfo)
+            return;
+
+        const newDoc = await projectsPresenter.addDocumentToProject(projectInfo.id, document_name);
+        if(!newDoc)
+            return;
+
+        setDocuments([...documents, newDoc])
     }
 
     const on_click_document = function(document: ItemInfo) {
@@ -49,7 +76,7 @@ const ProjectView: FC<ProjectsProps> = (props: ProjectsProps): ReactElement => {
     return (
         <div>
             <span>
-                <p>{state.projectInfo.name} View</p>
+                <p>{appCtx?.getCurrentProjectInfo()?.name} View</p>
             </span>
             <Cont>
                 <ProjectsContainer>

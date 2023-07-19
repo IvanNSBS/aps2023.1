@@ -75,8 +75,8 @@ const AllProjectsView: FC<ProjectsProps> = (props: ProjectsProps): ReactElement 
 
     const on_click_project = function(item: ItemInfo) {
         console.log(`Clicked on project: ${item.name}`);
-        const navigate_data = { state: { projectInfo: item} };
-        navigate(AppRoutes.project_view, navigate_data);
+        appCtx?.setCurrentProjectInfo(item);
+        navigate(AppRoutes.project_view);
     }
 
     return (

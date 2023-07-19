@@ -4,7 +4,7 @@ namespace webserver
 {
     public interface IDocumentsRepository
     {
-        string[] GetAllProjectDocuments(string projectId);
+        IdNameTuple[] GetAllProjectDocuments(string projectId);
         string CreateDocument(string projectId, string documentName);
     }
 
@@ -17,12 +17,13 @@ namespace webserver
             this._scopeFactory = scopeFactory;
         }
 
-        public string[] GetAllProjectDocuments(string projectId)
+        public IdNameTuple[] GetAllProjectDocuments(string projectId)
         {
             using(var scope = _scopeFactory.CreateScope())
             {
                 var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-                var documents = db.Documents.Where(x => x.Project.Id == projectId).Select(x => x.DocumentName);
+                var documents = db.Documents.Where(x => x.Project.Id == projectId).
+                    Select(x => new IdNameTuple{id=x.Id, name=x.DocumentName});
                 return documents.ToArray();
             }
         }
