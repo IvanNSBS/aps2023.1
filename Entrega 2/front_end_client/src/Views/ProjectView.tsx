@@ -106,6 +106,21 @@ const ProjectView: FC<ProjectsProps> = (props: ProjectsProps): ReactElement => {
         projectsPresenter.changeProjectName(project.id, value);
     }
 
+    const deleteDocument = async function(evt: any){
+        const projectInfo = appCtx?.getCurrentProjectInfo();
+        if(!projectInfo)
+            return;
+
+        if(await confirm("Você irá perder todos os documentos deste projecto. Tem certeza de que quer fazer isso?"))
+        {
+            const deleted = await projectsPresenter.deleteProject(projectInfo.id);
+            if(deleted)
+                navigate(-1);
+            else
+                alert("Não foi possível deletar o projeto.")
+        }
+    }
+
     return (
         <div>
             <Header>
@@ -138,7 +153,7 @@ const ProjectView: FC<ProjectsProps> = (props: ProjectsProps): ReactElement => {
             </Cont>
             <Header>
                 <button onClick={create_document}>Criar Novo Documento</button>
-                <button onClick={create_document}>Deletar Projeto</button>
+                <button onClick={deleteDocument}>Deletar Projeto</button>
             </Header>
         </div>
     )

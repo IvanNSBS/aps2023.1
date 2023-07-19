@@ -7,6 +7,7 @@ namespace webserver
         IdNameTuple[] GetAllUserProjects(string userId);
         string CreateProject(string owner_id, string projectName);
         bool ChangeProjectName(string projectId, string newName);
+        bool DeleteProject(string projectId);
     }
 
     public class ProjectsRepository : IProjectsRepository
@@ -58,10 +59,29 @@ namespace webserver
                     return false;
                 }
 
-                string uuid = Guid.NewGuid().ToString();
                 project.ProjectName = newName;
                 db.SaveChanges();
+                return true;
+            }
+        }
 
+        public bool DeleteProject(string projectId)
+        {
+            using(var scope = _scopeFactory.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                Project? project = db.Projects.FirstOrDefault(x => x.Id == projectId);
+                if(project == null) {
+                    Console.WriteLine($"There's no project with id {projectId}");
+                    return false;
+                }
+
+                Document[] docsToRemove = db.Documents.Where(x => x.ProjectFK == projectId).ToArray();
+                foreach(Document doc in docsToRemove)
+                    db.Documents.Remove(doc);
+
+                db.Projects.Remove(project);
+                db.SaveChanges();
                 return true;
             }
         }

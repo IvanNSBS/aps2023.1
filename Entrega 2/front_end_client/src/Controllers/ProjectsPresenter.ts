@@ -126,4 +126,17 @@ export class ProjectsPresenter
             return false;
         }
     }
+
+    public async deleteProject(projectId: string) : Promise<boolean> {
+        try
+        {
+            const endpoint = `${this.url}/delete_project/${projectId}`;
+            const {data} = await axios.delete(endpoint);
+            return data;
+        }
+        catch
+        {
+            return false;
+        }
+    }
 }

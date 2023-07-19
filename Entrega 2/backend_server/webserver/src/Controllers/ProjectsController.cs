@@ -103,5 +103,12 @@ namespace webserver
             bool changedNames = _projectsRepo.ChangeProjectName(projectId, newName);
             return changedNames;
         }
+
+        [HttpDelete]
+        [Route("delete_project/{projectId}")]
+        public async Task<ActionResult<bool>> DeleteProject(string projectId)
+        {
+            return _projectsRepo.DeleteProject(projectId);
+        }
     }
 }

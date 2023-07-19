@@ -59,7 +59,6 @@ namespace webserver
                     return false;
                 }
 
-                string uuid = Guid.NewGuid().ToString();
                 document.DocumentName = newName;
                 db.SaveChanges();
 
