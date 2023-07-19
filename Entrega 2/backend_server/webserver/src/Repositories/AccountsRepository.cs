@@ -44,5 +44,29 @@ namespace webserver
                 return account.Id;
             }
         }
+
+        public bool DeleteUser(string userId)
+        {
+            using(var scope = _scopeFactory.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                Account? account = db.Accounts.FirstOrDefault(x => x.Id == userId);
+                if(account == null)
+                    return false;
+
+                Project[] userProjects = db.Projects.Where(x => x.OwnerFK == userId).ToArray();
+                foreach(Project project in userProjects)
+                {
+                    Document[] projectDocs = db.Documents.Where(x => x.ProjectFK == project.Id).ToArray();
+                    foreach(Document doc in projectDocs)
+                        db.Documents.Remove(doc);
+
+                    db.Projects.Remove(project);
+                }
+
+                db.Accounts.Remove(account);
+                return true;
+            }
+        }
     }
 }

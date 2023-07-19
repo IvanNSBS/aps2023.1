@@ -6,5 +6,6 @@ namespace webserver
     {
         bool CreateUser(string email, string username, string password);
         string? ValidateUser(string userEmail, string password);
+        bool DeleteUser(string userId);
     }
 }

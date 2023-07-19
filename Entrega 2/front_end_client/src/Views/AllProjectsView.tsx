@@ -84,11 +84,18 @@ const AllProjectsView: FC<ProjectsProps> = (props: ProjectsProps): ReactElement 
         navigate(AppRoutes.project_view);
     }
 
+    const goToUserSettings = function(){
+        navigate(AppRoutes.user_settings);
+    }
+
     return (
         <div>
             <Header>
                 <p>All Projects View</p>
-                <button onClick={ () => appCtx?.logout() }>Logout</button>
+                <div>
+                    <button onClick={goToUserSettings}>Settings</button>
+                    <button onClick={ () => appCtx?.logout() }>Logout</button>
+                </div>
             </Header>
             <Cont>
                 <ProjectsContainer>

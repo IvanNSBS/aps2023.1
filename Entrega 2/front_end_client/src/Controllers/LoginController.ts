@@ -63,9 +63,8 @@ export class LoginController
             console.log(statusCode);
             if(statusCode === 403)
                 return CreateUserStatus.EMAIL_ALREADY_REGISTERED;
-                
+
             return CreateUserStatus.OTHER_ERROR;
-            // console.log(error.response.status);
         }
     }
 }
