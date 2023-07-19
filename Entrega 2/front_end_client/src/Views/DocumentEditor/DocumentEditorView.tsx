@@ -31,6 +31,12 @@ const DocumentNameInput = styled.input`
     margin-bottom: 10px;
 `
 
+const DeleteBtnContainer = styled.div`
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+`
+
 const DocumentEditorView: FC<DocumentEditorView> = (props: DocumentEditorView): ReactElement => {
     const navigate = useNavigate();
     const appCtx = useContext(AppContext);
@@ -64,6 +70,21 @@ const DocumentEditorView: FC<DocumentEditorView> = (props: DocumentEditorView): 
         controller.changeDocumentName(document.id, value);
     }
 
+    const deleteDocument = async function(evt: any){
+        const docInfo = appCtx?.getCurrentDocumentInfo();
+        if(!docInfo)
+            return;
+
+        if(await confirm("Você tem certeza de que quer fazer isso? Esta ação é irreversível"))
+        {
+            const deleted = await controller.deleteDocument(docInfo.id);
+            if(deleted)
+                navigate(-1);
+            else
+                alert("Não foi possível deletar o documento.")
+        }
+    }
+
     return (
         <EditorContainer>
             <EditorHeader>
@@ -78,6 +99,10 @@ const DocumentEditorView: FC<DocumentEditorView> = (props: DocumentEditorView): 
                 <button onClick={goToPreviousPage}>Voltar</button>
             </EditorHeader>
             <TextEditor></TextEditor>
+            <DeleteBtnContainer>
+                <div></div>
+                <button onClick={deleteDocument}>Deletar</button>
+            </DeleteBtnContainer>
         </EditorContainer>
     )
 }

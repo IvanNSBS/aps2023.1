@@ -34,5 +34,12 @@ namespace webserver
             bool changedNames = _repo.ChangeDocumentName(documentId, newName);
             return changedNames;
         }
+
+        [HttpDelete]
+        [Route("delete_document/{documentId}")]
+        public async Task<ActionResult<bool>> DeleteDocument(string documentId)
+        {
+            return _repo.DeleteDocument(documentId);
+        }
     }
 }
