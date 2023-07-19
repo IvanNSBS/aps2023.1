@@ -22,7 +22,7 @@ const App: FC = (): ReactElement => {
       <AppContextProvider>
         <Routes>
           <Route path={AppRoutes.login} element={ <LoginView loginController={loginController}/> }></Route>
-          <Route path={AppRoutes.register} element={ <CreateUserView/> }></Route>
+          <Route path={AppRoutes.register} element={ <CreateUserView loginController={loginController}/> }></Route>
           <Route path={AppRoutes.projects} element={ <AllProjectsView projectsPresenter={projectsPresenter}/> }></Route>
           <Route path={AppRoutes.project_view} element={ <ProjectView projectsPresenter={projectsPresenter}/> }></Route>
           <Route path={AppRoutes.edit_document} element={ <DocumentEditorView documentController={documentController}/> }></Route>
