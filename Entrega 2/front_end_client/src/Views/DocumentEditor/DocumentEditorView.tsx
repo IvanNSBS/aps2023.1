@@ -25,6 +25,11 @@ const EditorHeader = styled.div`
     justify-content: space-between;
     margin-bottom: 20px;
 `
+const DocumentNameInput = styled.input`
+    border: 0px;
+    font-size: 18px;
+    margin-bottom: 10px;
+`
 
 const DocumentEditorView: FC<DocumentEditorView> = (props: DocumentEditorView): ReactElement => {
     const navigate = useNavigate();
@@ -63,12 +68,12 @@ const DocumentEditorView: FC<DocumentEditorView> = (props: DocumentEditorView): 
         <EditorContainer>
             <EditorHeader>
                 <form onSubmit={changeDocumentName}>
-                    <input
+                    <DocumentNameInput
                         spellCheck={false}
                         defaultValue={docName}
                         name="document_name"
                         onBlur={changeDocumentName}>
-                    </input>
+                    </DocumentNameInput>
                 </form>
                 <button onClick={goToPreviousPage}>Voltar</button>
             </EditorHeader>
