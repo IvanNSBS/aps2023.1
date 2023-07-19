@@ -1,10 +1,12 @@
-import React, { FC, ReactElement } from 'react';
+import React, { FC, ReactElement, useContext, useRef, useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import { styled } from 'styled-components';
 import AppRoutes from '../AppRoutes';
+import { LoginController, LoginOutput, LoginStatus } from '../Controllers/LoginController';
+import { AppContext } from '../AppContext';
 
 type LoginProps = {
-
+    loginController: LoginController;
 }
 
 const LoginForms = styled.form`
@@ -13,27 +15,59 @@ const LoginForms = styled.form`
     display: grid;
 `
 
+const WrongInfoMsg = styled.div`
+    color: red;
+`
+
 const LoginView: FC<LoginProps> = (props: LoginProps): ReactElement => {
     let navigate = useNavigate();
+    const forms = useRef<HTMLFormElement>(null);
+    const appCtx = useContext(AppContext);
+    const [wasWrongInput, setWasWrongInput] = useState<boolean>(false);
+    const loginController: LoginController = props.loginController;
 
-    const redirect_to_projects = () => {
+    const redirectToProjects = () => {
         navigate(AppRoutes.projects);
     }
+
+    const onSubmitForms = async function(event: any) {
+        event.preventDefault();
+
+        const email: string = event.target.email.value;
+        const password: string = event.target.password.value;
+
+        const output: LoginOutput = await loginController.attempt_login(email, password);
+        console.log(output);
+        if(output.loginStatus === LoginStatus.WRONG_USER_NAME_OR_PASSWORD){
+            setWasWrongInput(true);
+            forms.current?.reset();
+        }
+        else
+        {
+            appCtx?.setUserId(output.output);
+            redirectToProjects();
+        }
+    }
+
+    let loginErrorMsg = <></>
+    if(wasWrongInput)
+        loginErrorMsg = <WrongInfoMsg>Wrong username or password</WrongInfoMsg>
 
     return (
         <div>
             <p>LoginView</p>
-            <LoginForms onSubmit={redirect_to_projects}>
+            <LoginForms onSubmit={onSubmitForms} ref={forms}>
                 <label>
-                    Username: 
-                    <input type='text'></input>
+                    Email: 
+                    <input type='email' id="email" name="email"></input>
                 </label>
                 <label>
                     Password: 
-                    <input type='password'></input>
+                    <input type='password' id="password" name="password"></input>
                 </label>
                 <input type="submit" value="Login"/>
             </LoginForms>
+            {loginErrorMsg}
             <a href={AppRoutes.register}>Não é cadastrado? Registrar-se</a>
         </div>
     )

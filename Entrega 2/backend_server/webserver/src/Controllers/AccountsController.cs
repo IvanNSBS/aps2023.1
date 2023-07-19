@@ -24,19 +24,19 @@ namespace webserver
             
             var data = JsonConvert.DeserializeObject<JObject>(body);
             if(data == null)
-                return StatusCode(500, "Invalid request body");
+                return StatusCode(400, "Invalid request body");
             
             string? email = data.SelectToken("email")?.Value<string>();
             string? username = data.SelectToken("username")?.Value<string>();
             string? password = data.SelectToken("password")?.Value<string>();
             if(email == null || username == null || password == null)
-                return StatusCode(500, "Invalid Email, Username or Password");
+                return StatusCode(404, "Invalid Email, Username or Password");
 
             bool created = _repo.CreateUser(email, username, password);
             if(created)
                 return Ok("User Created!");
             
-            return StatusCode(500, "Could not create user. Email already registered");
+            return StatusCode(403, "Could not create user. Email already registered");
         }
 
         [HttpPost]
@@ -48,16 +48,16 @@ namespace webserver
             
             var data = JsonConvert.DeserializeObject<JObject>(body);
             if(data == null)
-                return StatusCode(500, "Invalid request body");
+                return StatusCode(400, "Invalid request body");
             
             string? email = data.SelectToken("email")?.Value<string>();
             string? password = data.SelectToken("password")?.Value<string>();
             if(email == null || password == null)
-                return StatusCode(500, "Invalid Email or Password");
+                return StatusCode(400, "Invalid Email or Password");
 
             string? userId = _repo.ValidateUser(email, password);
             if(userId == null)
-                return StatusCode(500, "Wrong Email or Password");
+                return StatusCode(404, "Wrong Email or Password");
 
             return Ok(userId);
         }

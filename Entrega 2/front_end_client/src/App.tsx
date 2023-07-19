@@ -8,13 +8,18 @@ import AppRoutes from "./AppRoutes";
 import CreateUserView from "./Views/CreateUserView";
 import ProjectView from "./Views/ProjectView";
 import { AppContextProvider } from "./AppContext";
+import { LoginController } from "./Controllers/LoginController";
+import { ProjectsController } from "./Controllers/ProjectsController";
+
+const loginController = new LoginController();
+const projectsController = new ProjectsController();
 
 const App: FC = (): ReactElement => {
   return (
     <>
       <AppContextProvider>
         <Routes>
-          <Route path={AppRoutes.login} element={ <LoginView/> }></Route>
+          <Route path={AppRoutes.login} element={ <LoginView loginController={loginController}/> }></Route>
           <Route path={AppRoutes.register} element={ <CreateUserView/> }></Route>
           <Route path={AppRoutes.projects} element={ <AllProjectsView/> }></Route>
           <Route path={AppRoutes.project_view} element={ <ProjectView/> }></Route>

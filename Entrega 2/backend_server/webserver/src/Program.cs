@@ -7,6 +7,7 @@ class Program
         var builder = WebApplication.CreateBuilder(args);
 
         // Add services to the container.
+        builder.Services.AddCors();
         builder.Services.AddDbContext<AppDbContext>();
         builder.Services.AddSingleton<IAccountsRepository, AccountsRepository>();
         builder.Services.AddSingleton<IProjectsRepository, ProjectsRepository>();
@@ -18,6 +19,13 @@ class Program
         builder.Services.AddSwaggerGen();
 
         var app = builder.Build();
+        app.UseCors(builder =>
+        {
+            builder
+            .AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+        });
 
         // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())
@@ -26,12 +34,13 @@ class Program
             app.UseSwaggerUI();
         }
 
-        app.UseHttpsRedirection();
+        // app.UseHttpsRedirection();
 
         app.UseAuthorization();
 
         app.MapControllers();
 
         app.Run();
+
     }
 }
