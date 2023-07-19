@@ -28,7 +28,7 @@ namespace webserver
 
         [HttpPost]
         [Route("create_project")]
-        public async Task<ActionResult> CreateProject()
+        public async Task<ActionResult<string>> CreateProject()
         {
             using var reader = new StreamReader(HttpContext.Request.Body);
             var body = await reader.ReadToEndAsync();
@@ -41,10 +41,13 @@ namespace webserver
             string? projectName = data.SelectToken("project_name")?.Value<string>();
 
             if(userId == null || projectName == null)
-                return StatusCode(500, "Invalid Email, Username or Password");
+                return StatusCode(404, "Invalid userId or projectName");
 
-            _projectsRepo.CreateProject(userId, projectName);
-            return Ok();
+            string projectId = _projectsRepo.CreateProject(userId, projectName);
+            if(projectId == null)
+                return StatusCode(404, "Could not create project for user. userId does not exist");
+
+            return projectId;
         }
 
         [HttpGet]
@@ -56,7 +59,7 @@ namespace webserver
 
         [HttpPost]
         [Route("create_document")]
-        public async Task<ActionResult> CreateDocument()
+        public async Task<ActionResult<string>> CreateDocument()
         {
             using var reader = new StreamReader(HttpContext.Request.Body);
             var body = await reader.ReadToEndAsync();
@@ -69,10 +72,13 @@ namespace webserver
             string? documentName = data.SelectToken("document_name")?.Value<string>();
 
             if(projectId == null || documentName == null)
-                return StatusCode(500, "Invalid Project Id or Document Name");
+                return StatusCode(404, "Invalid Project Id or Document Name");
 
-            _docsRepo.CreateDocument(projectId, documentName);
-            return Ok();
+            string documentId = _docsRepo.CreateDocument(projectId, documentName);
+            if(documentId == null)
+                return StatusCode(404, "Could not create document for project. ProjectId does not exist");
+
+            return documentId;
         }
     }
 }

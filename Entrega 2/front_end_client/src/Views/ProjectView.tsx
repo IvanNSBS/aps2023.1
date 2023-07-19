@@ -3,6 +3,7 @@ import AppRoutes from '../AppRoutes';
 import ProjectGridItem from './ProjectGridItem';
 import { styled } from 'styled-components';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { ItemInfo } from '../Controllers/ProjectsPresenter';
 
 type ProjectsProps = {
 }
@@ -19,7 +20,7 @@ const Cont = styled.div`
 
 const ProjectView: FC<ProjectsProps> = (props: ProjectsProps): ReactElement => {
     
-    const [documents, setDocuments] = useState<string[] | []>([]);
+    const [documents, setDocuments] = useState<ItemInfo[]>([]);
     const { state } = useLocation();
     const navigate = useNavigate();
 
@@ -29,32 +30,37 @@ const ProjectView: FC<ProjectsProps> = (props: ProjectsProps): ReactElement => {
         if (document_name == null || document_name == "") {
             console.log("canceled create document prompt");
         } 
-        else 
-        {
-            let name_exists = documents.find(x => x == document_name) !== undefined;
-            if (name_exists)
-                alert("Já existe um documento com este nome.")
-            else
-                setDocuments([...documents, document_name])
-        } 
+        // else 
+        // {
+        //     let name_exists = documents.find(x => x == document_name) !== undefined;
+        //     if (name_exists)
+        //         alert("Já existe um documento com este nome.")
+        //     else
+        //         setDocuments([...documents, document_name])
+        // } 
     }
 
-    const on_click_document = function(document_name: string) {
-        console.log(`Clicked on document: ${document_name}`)
-        const navigate_data = { state: { document_name: document_name} };
+    const on_click_document = function(document: ItemInfo) {
+        console.log(`Clicked on document: ${document.name}`)
+        const navigate_data = { state: { document_name: document} };
         navigate(AppRoutes.edit_document, navigate_data);
     }
 
     return (
         <div>
             <span>
-                <p>{state.project_name} View</p>
+                <p>{state.projectInfo.name} View</p>
             </span>
             <Cont>
                 <ProjectsContainer>
                     {
                         documents.map((item, index) => 
-                            <ProjectGridItem name={item} key={index} on_click={() => on_click_document(item)}></ProjectGridItem>
+                            <ProjectGridItem
+                                id={item.id} 
+                                name={item.name} 
+                                key={item.name} 
+                                on_click={() => on_click_document(item)}
+                            ></ProjectGridItem>
                         )
                     }
                 </ProjectsContainer>

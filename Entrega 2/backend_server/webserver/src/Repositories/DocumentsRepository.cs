@@ -5,7 +5,7 @@ namespace webserver
     public interface IDocumentsRepository
     {
         string[] GetAllProjectDocuments(string projectId);
-        void CreateDocument(string projectId, string documentName);
+        string CreateDocument(string projectId, string documentName);
     }
 
     public class DocumentsRepository : IDocumentsRepository
@@ -27,7 +27,7 @@ namespace webserver
             }
         }
 
-        public void CreateDocument(string projectId, string documentName)
+        public string CreateDocument(string projectId, string documentName)
         {
             using(var scope = _scopeFactory.CreateScope())
             {
@@ -35,12 +35,14 @@ namespace webserver
                 Project? proj = db.Projects.FirstOrDefault(x => x.Id == projectId);
                 if(proj == null) {
                     Console.WriteLine($"There's no account with username {projectId}");
-                    return;
+                    return null;
                 }
 
                 string uuid = Guid.NewGuid().ToString();
                 db.Documents.Add(new Document(uuid, documentName, "", new List<string>(), proj));
                 db.SaveChanges();
+
+                return uuid;
             }
         }
     }

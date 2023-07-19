@@ -43,25 +43,39 @@ const AllProjectsView: FC<ProjectsProps> = (props: ProjectsProps): ReactElement 
         fetchProjects();
     }, []);
 
-    const create_project = function() {
+    const create_project = async function() {
         let project_name = prompt("Digite o nome do projecto", "Novo Projeto");
         
-        // if (project_name == null || project_name == "") {
-        //     console.log("canceled create project prompt");
-        // } 
-        // else 
-        // {
-        //     let name_exists = projects.find(x => x.name == project_name) !== undefined;
-        //     if (name_exists)
-        //         alert("Já existe um projeto com este nome.")
-        //     else
-        //         setProjects([...projects, project_name])
-        // } 
+        if (project_name == null || project_name == "") {
+            console.log("canceled create project prompt");
+        } 
+        else 
+        {
+            let name_exists = projects.find(x => x.name == project_name) !== undefined;
+            if (name_exists){
+                alert("Já existe um projeto com este nome.")
+                return;
+            }
+
+            const userId = appCtx?.getUserId();
+            if(!userId){
+                alert("no user is logged in");
+                return;
+            }
+
+            const createdProject = await projectsPresenter.createProject(userId, project_name);
+            if(!createdProject){
+                alert("Could not create project");
+                return;
+            }
+            
+            setProjects([...projects, createdProject])
+        } 
     }
 
     const on_click_project = function(item: ItemInfo) {
         console.log(`Clicked on project: ${item.name}`);
-        const navigate_data = { state: { project_name: item.name} };
+        const navigate_data = { state: { projectInfo: item} };
         navigate(AppRoutes.project_view, navigate_data);
     }
 

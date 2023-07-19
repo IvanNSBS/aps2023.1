@@ -5,7 +5,7 @@ namespace webserver
     public interface IProjectsRepository
     {
         IdNameTuple[] GetAllUserProjects(string userId);
-        void CreateProject(string owner_id, string projectName);
+        string CreateProject(string owner_id, string projectName);
     }
 
     public class ProjectsRepository : IProjectsRepository
@@ -27,7 +27,7 @@ namespace webserver
             }
         }
 
-        public void CreateProject(string ownerId, string projectName)
+        public string CreateProject(string ownerId, string projectName)
         {
             using(var scope = _scopeFactory.CreateScope())
             {
@@ -35,12 +35,14 @@ namespace webserver
                 Account? acc = db.Accounts.FirstOrDefault(x => x.Id == ownerId);
                 if(acc == null) {
                     Console.WriteLine($"There's no account with username {ownerId}");
-                    return;
+                    return null;
                 }
 
                 string uuid = Guid.NewGuid().ToString();
                 db.Projects.Add(new Project(uuid, projectName, acc));
                 db.SaveChanges();
+
+                return uuid;
             }
         }
     }
