@@ -40,6 +40,8 @@ const TextEditor: FC = (): ReactElement => {
   const [tokenRange, setTokenRange] = useState<number>(0);
   const [tokenIndex, setTokenIndex] = useState<number>(0);
 
+  const [innerTextCopy, setInnerTextCopy] = useState<string>("");
+
   const tokensInfo = useRef<TokenInfo[]>([]);
   const self = useRef<HTMLDivElement>(null);
   const appContext = useContext(AppContext);
@@ -49,7 +51,7 @@ const TextEditor: FC = (): ReactElement => {
     const [new_tokens, changes] = process_tokens(new_text, tokensInfo.current);
     tokensInfo.current = new_tokens;
     setTokenRange(new_tokens.length-1);
-    console.log(new_tokens);
+    // console.log(new_tokens);
   }
 
   const onKeyDown = function(evt: any) {
@@ -67,11 +69,12 @@ const TextEditor: FC = (): ReactElement => {
   }
 
   const onChange = function(evt: any) {
-    if(!self || !self.current)
+    const selection = getSelection();
+    if(!self || !self.current || !selection)
       return;
 
     const newText = evt.target.innerText;
-    const writeCmd = new WriteCommand(self.current, currentInnerText, newText, updateTokens);
+    const writeCmd = new WriteCommand(self.current, selection, currentInnerText, newText, updateTokens);
     appContext?.getCmdHistory().add_command(writeCmd);
   }
 
@@ -109,6 +112,20 @@ const TextEditor: FC = (): ReactElement => {
     setTokenIndex(new_val.target.value);
   }
 
+  const copyText = function(){
+    if(!self.current)
+      return;
+    
+    setInnerTextCopy(self.current.innerText);
+  }
+
+  const pasteText = function() {
+    if(!self.current)
+    return;
+  
+    self.current.innerText = innerTextCopy;
+  }
+
   let grammar = <></>
   if(tokenRect && self && self.current) {
     grammar = 
@@ -138,7 +155,9 @@ const TextEditor: FC = (): ReactElement => {
       <span>
         <input type="range" min={0} max={tokenRange} onChange={onSliderChange}></input>
         <button onClick={test_select}> Test Select </button>
-      </span>
+        <button onClick={copyText}>copy</button>
+        <button onClick={pasteText}>paste</button>
+        </span>
     </TextContainer>
   );
 }
