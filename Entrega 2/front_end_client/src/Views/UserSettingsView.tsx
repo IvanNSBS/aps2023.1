@@ -52,10 +52,16 @@ const UserSettingsView: FC<UserSettingsProps> = (props: UserSettingsProps): Reac
     const appCtx = useContext(AppContext);
     const userController: UserController = props.userController;
 
+    const [showPassword, setShowPassword] = useState<boolean>(false);
+    const [disableSubmit, setDisableSubmit] = useState<boolean>(true);
     const [userInfo, setUserInfo] = useState<UserAccount|undefined>(undefined);
     const [emailWasEmpty, setEmailWasEmpty] = useState<boolean>(false);
     const [usernameWasEmpty, setUsernameWasEmpty] = useState<boolean>(false);
     const [passwordWasEmpty, setPasswordWasEmpty] = useState<boolean>(false);
+
+    const [emailField, setEmailField] = useState<string>("");
+    const [usernameField, setUsernameField] = useState<string>("");
+    const [passwordField, setPasswordField] = useState<string>("");
 
     useEffect(() => {
         const fetchUserData = async function(){
@@ -69,12 +75,70 @@ const UserSettingsView: FC<UserSettingsProps> = (props: UserSettingsProps): Reac
                 return;
             }
             
-            console.log(info);
             setUserInfo(info);
+            setEmailField(info.email);
+            setUsernameField(info.username);
+            setPasswordField(info.password); 
         }
 
         fetchUserData();
     }, []);
+
+    const handleToggleShowPassword = function(evt: any) {
+        evt.preventDefault();
+        setShowPassword(!showPassword);
+    }
+
+    const handleUpdateEmail = function(evt: any) {
+        const newEmail = evt.target.value;
+        setEmailField(newEmail);
+
+        const newUserInfo = {
+            email: newEmail,
+            username: usernameField,
+            password: passwordField
+        }
+        activateChangesCondition(newUserInfo);
+    }
+
+    const handleUpdateUsername = function(evt: any) {
+        const newUsername = evt.target.value;
+        setUsernameField(newUsername);
+
+        const newUserInfo = {
+            email: emailField,
+            username: newUsername,
+            password: passwordField
+        }
+        activateChangesCondition(newUserInfo);
+    }
+
+    const handleUpdatePassword = function(evt: any) {
+        const newPassword = evt.target.value;
+        setPasswordField(newPassword);
+
+        const newUserInfo = {
+            email: emailField,
+            username: usernameField,
+            password: newPassword
+        }
+        activateChangesCondition(newUserInfo);
+    }
+
+    const activateChangesCondition = function(newInfo: UserAccount) {
+        if(!userInfo){
+            setDisableSubmit(false);
+            return;
+        }
+
+        const isEnabled: boolean = ( 
+            newInfo.email != userInfo.email || 
+            newInfo.username != userInfo.username ||
+            newInfo.password != userInfo.password
+        );
+
+        setDisableSubmit(!isEnabled);
+    }
 
     const handleSubmitUpdateUserInfo = async function(event: any) {
         event.preventDefault();
@@ -91,10 +155,18 @@ const UserSettingsView: FC<UserSettingsProps> = (props: UserSettingsProps): Reac
         setPasswordWasEmpty(emptyPassword);
         if(emptyEmail || emptyUsername || emptyPassword)
             return;
-
+            
         const updated = await userController.updateUserData(email, username, password);
         if(updated)
+        {
             alert("Os dados do usuário foram atualizados");
+            const newUserInfo = {
+                email: emailField,
+                username: usernameField,
+                password: passwordField
+            }
+            setUserInfo(newUserInfo);
+        }
     }
 
     const handleDeleteUser = async function()
@@ -123,24 +195,49 @@ const UserSettingsView: FC<UserSettingsProps> = (props: UserSettingsProps): Reac
                 <InputLabel>
                     Email:
                     <InputContainer>
-                        <input type='email' id="email" name="email" defaultValue={userInfo?.email}/>
+                        <input 
+                            type='email' 
+                            id="email" 
+                            name="email" 
+                            defaultValue={userInfo?.email}
+                            onChange={handleUpdateEmail}
+                        />
                         {requiredEmailMsg}
                     </InputContainer>
                 </InputLabel>
                 <InputLabel>
                     Username:
                     <InputContainer>
-                        <input type='text' id="username" name="username" defaultValue={userInfo?.username}/>
+                        <input 
+                            type='text' 
+                            id="username" 
+                            name="username" 
+                            defaultValue={userInfo?.username}
+                            onChange={handleUpdateUsername}
+                        />
                         {requiredUsernameMsg}
                     </InputContainer>
                 </InputLabel>
                 <InputLabel>
                     Password:
                     <InputContainer>
-                        <input type='password' id="password" name="password" defaultValue={userInfo?.password}/>
+                        <input 
+                            type={showPassword ? "text" : "password"} 
+                            id="password" 
+                            name="password"
+                            defaultValue={userInfo?.password}
+                            onChange={handleUpdatePassword}
+                        />
+                        <button onClick={handleToggleShowPassword}>Show</button>
                         {requiredPasswordMsg}
                     </InputContainer>
                 </InputLabel>
+                <input 
+                    type="submit" 
+                    value="Atualizar Dados"
+                    disabled={disableSubmit}
+                >
+                </input>
             </UpdateUserInfoForms>
             <DeleteUserContainer>
                 <span></span>
