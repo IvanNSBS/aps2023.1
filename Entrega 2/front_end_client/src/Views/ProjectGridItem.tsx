@@ -2,7 +2,8 @@ import React, { FC, ReactElement } from 'react';
 import { styled } from 'styled-components';
 
 type ProjectItemProps = {
-    name: string
+    id: string,
+    name: string,
     on_click?: () => void
 }
 

@@ -4,7 +4,7 @@ namespace webserver
 {
     public interface IProjectsRepository
     {
-        string[] GetAllUserProjects(string userId);
+        IdNameTuple[] GetAllUserProjects(string userId);
         void CreateProject(string owner_id, string projectName);
     }
 
@@ -17,12 +17,12 @@ namespace webserver
             this._scopeFactory = scopeFactory;
         }
 
-        public string[] GetAllUserProjects(string userId)
+        public IdNameTuple[] GetAllUserProjects(string userId)
         {
             using(var scope = _scopeFactory.CreateScope())
             {
                 var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-                var projects = db.Projects.Where(x => x.Owner.Id == userId).Select(x => x.ProjectName);
+                var projects = db.Projects.Where(x => x.Owner.Id == userId).Select(x => new IdNameTuple{id=x.Id, name=x.ProjectName});
                 return projects.ToArray();
             }
         }

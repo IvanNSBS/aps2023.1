@@ -8,18 +8,22 @@ namespace webserver
     [ApiController]
     public class ProjectsController : ControllerBase
     {
-        private readonly IProjectsRepository _repo;
+        private readonly IProjectsRepository _projectsRepo;
+        private readonly IDocumentsRepository _docsRepo;
 
-        public ProjectsController(IProjectsRepository repo)
+        public ProjectsController(IProjectsRepository projectsRepo, IDocumentsRepository docsRepo)
         {
-            _repo = repo;
+            _projectsRepo = projectsRepo;
+            _docsRepo = docsRepo;
         }
 
         [HttpGet]
         [Route("get_user_projects/{userId}")]
         public ActionResult<string> GetUserProjects(string userId)
         {
-            return string.Join(",", _repo.GetAllUserProjects(userId));
+            var allProjects = _projectsRepo.GetAllUserProjects(userId);
+            string jsonString = JsonConvert.SerializeObject(allProjects);
+            return jsonString;
         }
 
         [HttpPost]
@@ -39,7 +43,35 @@ namespace webserver
             if(userId == null || projectName == null)
                 return StatusCode(500, "Invalid Email, Username or Password");
 
-            _repo.CreateProject(userId, projectName);
+            _projectsRepo.CreateProject(userId, projectName);
+            return Ok();
+        }
+
+        [HttpGet]
+        [Route("get_project_documents/{projectId}")]
+        public ActionResult<string> GetProjectDocuments(string projectId)
+        {
+            return string.Join(",", _docsRepo.GetAllProjectDocuments(projectId));
+        }
+
+        [HttpPost]
+        [Route("create_document")]
+        public async Task<ActionResult> CreateDocument()
+        {
+            using var reader = new StreamReader(HttpContext.Request.Body);
+            var body = await reader.ReadToEndAsync();
+            
+            var data = JsonConvert.DeserializeObject<JObject>(body);
+            if(data == null)
+                return StatusCode(500, "Invalid request body");
+            
+            string? projectId = data.SelectToken("project_id")?.Value<string>();
+            string? documentName = data.SelectToken("document_name")?.Value<string>();
+
+            if(projectId == null || documentName == null)
+                return StatusCode(500, "Invalid Project Id or Document Name");
+
+            _docsRepo.CreateDocument(projectId, documentName);
             return Ok();
         }
     }

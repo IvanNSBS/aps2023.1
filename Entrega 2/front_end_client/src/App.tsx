@@ -9,10 +9,10 @@ import CreateUserView from "./Views/CreateUserView";
 import ProjectView from "./Views/ProjectView";
 import { AppContextProvider } from "./AppContext";
 import { LoginController } from "./Controllers/LoginController";
-import { ProjectsController } from "./Controllers/ProjectsController";
+import { ProjectsPresenter } from "./Controllers/ProjectsPresenter";
 
 const loginController = new LoginController();
-const projectsController = new ProjectsController();
+const projectsPresenter = new ProjectsPresenter();
 
 const App: FC = (): ReactElement => {
   return (
@@ -21,7 +21,7 @@ const App: FC = (): ReactElement => {
         <Routes>
           <Route path={AppRoutes.login} element={ <LoginView loginController={loginController}/> }></Route>
           <Route path={AppRoutes.register} element={ <CreateUserView/> }></Route>
-          <Route path={AppRoutes.projects} element={ <AllProjectsView/> }></Route>
+          <Route path={AppRoutes.projects} element={ <AllProjectsView projectsPresenter={projectsPresenter}/> }></Route>
           <Route path={AppRoutes.project_view} element={ <ProjectView/> }></Route>
           <Route path={AppRoutes.edit_document} element={ <DocumentEditorView/> }></Route>
         </Routes>
