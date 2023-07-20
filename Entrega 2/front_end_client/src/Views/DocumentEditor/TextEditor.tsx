@@ -60,8 +60,10 @@ const TextEditor: FC<TextEditorProps> = (props:TextEditorProps): ReactElement =>
     {
       const selected = new_tokens[tokenIndex];
       const found = changes.find(x => x.new_token && x.new_token.uuid === selected.uuid);
-      if(found)
+      if(found) {
         console.log("changed token that has grammar correction!");
+        setTokenRect(undefined);
+      }
     }
   }
 

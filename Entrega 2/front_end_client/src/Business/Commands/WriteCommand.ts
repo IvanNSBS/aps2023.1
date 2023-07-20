@@ -31,52 +31,41 @@ export class WriteCommand extends ICommand
         return caretPosition;
     }
 
-    private moveCaretPosition(caretPosition: number, moveToEnd: boolean)
+    private moveCaretPosition(caretPosition: number)
     {
-        if(moveToEnd)
+        const start = this.selection.focusNode;
+        if(!start)
+            return;
+
+        let prevSize = 0;
+        let size = 0;
+        let childNode = null;
+        for(let i = 0; i < start.childNodes.length; i++)
+        {
+            const l = start.childNodes[i].textContent?.length;
+            if(!l){
+                size = size + 1;
+                continue;
+            }
+            
+            size = size + l;
+            if(size >= caretPosition) {
+                childNode = start.childNodes[i];
+                prevSize = size - l;
+                break;
+            }
+        }
+        if(childNode !== null)
+        {
+            const deltaC = caretPosition - prevSize - 1;
+            const offset = deltaC + 1 >= 0 ? deltaC + 1 : 0;
+            this.selection.setPosition(childNode, offset);
+        }
+        else
         {
             const child = !this.textEditorNode.lastChild ? this.textEditorNode : this.textEditorNode.lastChild;
             const offset = child.textContent ? child.textContent.length : 0;
             this.selection.setPosition(child, offset);
-        }
-        else
-        {
-            const start = this.selection.focusNode;
-            if(start)
-            {
-                console.log("caret position: " + caretPosition);
-                let prevSize = 0;
-                let size = 0;
-                let childNode = null;
-                for(let i = 0; i < start.childNodes.length; i++)
-                {
-                    // console.log(start.childNodes[i].textContent);
-                    const l = start.childNodes[i].textContent?.length;
-                    if(!l){
-                        size = size + 1;
-                        continue;
-                    }
-                    
-                    size = size + l;
-                    if(size >= caretPosition) {
-                        childNode = start.childNodes[i];
-                        prevSize = size - l;
-                        break;
-                    }
-                }
-                if(childNode !== null)
-                {
-                    const deltaC = caretPosition - prevSize - 1;
-                    const offset = deltaC + 1 >= 0 ? deltaC + 1 : 0;
-                    this.selection.setPosition(childNode, offset);
-                }
-                else
-                {
-                    const child = !this.textEditorNode.lastChild ? this.textEditorNode : this.textEditorNode.lastChild;
-                    const offset = child.textContent ? child.textContent.length : 0;
-                    this.selection.setPosition(child, offset);
-                }
-            }
         }
     }
 
@@ -88,19 +77,16 @@ export class WriteCommand extends ICommand
         if(trailingLineBreak)
             this.newState = this.newState.slice(0, -1);
 
-        const caretPosition = this.getCaretPosition();
-        const moveToEnd = caretPosition === this.newState.length || this.newState.length < caretPosition;
-
         this.textEditorNode.innerText = this.newState;
-        this.moveCaretPosition(caretPosition, moveToEnd);
+        this.moveCaretPosition(this.prevCaretPosition);
         this.onExecuteClbk(this.newState);
+
+        this.newCaretPosition = this.getCaretPosition();
     }
 
     public override undo(): void {
         this.textEditorNode.innerText = this.prevState;
-        const child = !this.textEditorNode.lastChild ? this.textEditorNode : this.textEditorNode.lastChild;
-        const offset = child.textContent ? child.textContent.length : 0;  
-        this.selection.setPosition(child, offset);
+        this.moveCaretPosition(this.prevCaretPosition);
         this.onExecuteClbk(this.prevState);
     }
 }
