@@ -1,8 +1,11 @@
 import axios from "axios"
+import { SpellCheckProvider } from "./SpellCheckProvider";
+import { TokenChanges } from "../Business/TextEditor/TextEditorTokenizer";
 
 export class DocumentController
 {
     private url: string = "http://127.0.0.1:5000/documents";
+    private spellChecker: SpellCheckProvider = new SpellCheckProvider();
 
     public async changeDocumentName(documentId: string, newName: string): Promise<boolean> 
     {
@@ -64,5 +67,9 @@ export class DocumentController
         {
             return false;
         }
+    }
+
+    public async getGrammarSuggestions(changes: TokenChanges[]) {
+        this.spellChecker.fetchSuggestions(changes);
     }
 }

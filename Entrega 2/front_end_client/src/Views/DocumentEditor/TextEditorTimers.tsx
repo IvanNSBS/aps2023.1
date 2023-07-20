@@ -1,5 +1,6 @@
 import { ReactElement, FC, useEffect, useState } from "react";
 import { DocumentController } from "../../Controllers/DocumentController";
+import { TokenChanges, TokenInfo, process_tokens } from "../../Business/TextEditor/TextEditorTokenizer";
 
 type TextEditorTimerProps = {
     controller: DocumentController;
@@ -11,10 +12,28 @@ export const TextEditorTimers: FC<TextEditorTimerProps> = (props: TextEditorTime
     const controller = props.controller;
     let interval: NodeJS.Timer;
     let grammarInterval: NodeJS.Timer;
-    
-    const [currentContent, setCurrentContent] = useState<string>("");
+    let currentContent: string = "";
+    let currentTokens: TokenInfo[] = [];
+
+    const fetchGrammarSuggestions = async function(changes: TokenChanges[]) {
+        await props.controller.getGrammarSuggestions(changes);
+    };
 
     useEffect(() => {
+        const fetchInitialData = async function() {
+            if(!props.documentId)
+                return;
+
+            const content = await props.controller.getDocumentConcent(props.documentId);
+            if(!content)
+                return;
+            
+            currentContent = content;
+            const [tokenInfo, tokenChanges] = process_tokens(content, currentTokens);
+            currentTokens = tokenInfo;
+        };
+        fetchInitialData();
+
         interval = setInterval(() => {
             if(!props.documentId) {
                 console.error("On document page but there's no document id. This shouldn't be possible");
@@ -28,24 +47,33 @@ export const TextEditorTimers: FC<TextEditorTimerProps> = (props: TextEditorTime
 
             const docContent = props.docDiv.current.innerText;
             controller.saveDocument(props.documentId, docContent);
-            console.log("Saving document...\n" + docContent);
+            // console.log("Saving document...\n" + docContent);
         }, 3000);
 
         return () => clearInterval(interval);
     }, []);
 
     useEffect(() => {
-        if(props.docDiv && props.docDiv.current) {
-            setCurrentContent(props.docDiv.current.innerText);
-            console.log("setting current content! " + props.docDiv.current.innerText);
-        }
-
         grammarInterval = setInterval(() => {
-            console.log("Grammar interval....")
-        }, 8000)
+            if(!props.docDiv.current)
+                return;
+
+            if(currentContent !== props.docDiv.current.innerText){
+                console.log("Content changed since last grammar check!")
+                currentContent = props.docDiv.current.innerText;
+                const [tokenInfo, tokenChanges] = process_tokens(currentContent, currentTokens);
+                currentTokens = tokenInfo;
+                console.log(tokenInfo);
+                console.log(tokenChanges);
+                fetchGrammarSuggestions(tokenChanges);
+            }
+            else{
+                // console.log("Content didn't change since last grammar check...")
+            }
+        }, 1000)
 
         return () => clearInterval(grammarInterval);
     }, []);
 
-    return null;
+    return <></>;
 }
