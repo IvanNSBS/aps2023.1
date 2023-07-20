@@ -6,6 +6,12 @@ import SuggestGrammarHighlight from './SuggestGrammarHighlight';
 import { AppContext } from '../../AppContext';
 import { AcceptGrammarSuggestionCommand } from '../../Business/Commands/AcceptGrammarSuggestionCommand';
 import { WriteCommand } from '../../Business/Commands/WriteCommand';
+import { TextEditorTimers } from './TextEditorTimers';
+import { DocumentController } from '../../Controllers/DocumentController';
+
+type TextEditorProps = {
+  controller: DocumentController;
+}
 
 const TextContainer = styled.div`
   height: max(85vh, 350px);
@@ -34,13 +40,11 @@ const TextInput = styled.div`
   }
 `
 
-const TextEditor: FC = (): ReactElement => {
+const TextEditor: FC<TextEditorProps> = (props:TextEditorProps): ReactElement => {
   const [currentInnerText, setCurrentInnerText] = useState<string>("");
   const [tokenRect, setTokenRect] = useState<DOMRect>();
   const [tokenRange, setTokenRange] = useState<number>(0);
   const [tokenIndex, setTokenIndex] = useState<number>(0);
-
-  const [innerTextCopy, setInnerTextCopy] = useState<string>("");
 
   const tokensInfo = useRef<TokenInfo[]>([]);
   const self = useRef<HTMLDivElement>(null);
@@ -51,7 +55,14 @@ const TextEditor: FC = (): ReactElement => {
     const [new_tokens, changes] = process_tokens(new_text, tokensInfo.current);
     tokensInfo.current = new_tokens;
     setTokenRange(new_tokens.length-1);
-    // console.log(new_tokens);
+
+    if(tokenRect)
+    {
+      const selected = new_tokens[tokenIndex];
+      const found = changes.find(x => x.new_token && x.new_token.uuid === selected.uuid);
+      if(found)
+        console.log("changed token that has grammar correction!");
+    }
   }
 
   const onKeyDown = function(evt: any) {
@@ -112,20 +123,6 @@ const TextEditor: FC = (): ReactElement => {
     setTokenIndex(new_val.target.value);
   }
 
-  const copyText = function(){
-    if(!self.current)
-      return;
-    
-    setInnerTextCopy(self.current.innerText);
-  }
-
-  const pasteText = function() {
-    if(!self.current)
-    return;
-  
-    self.current.innerText = innerTextCopy;
-  }
-
   let grammar = <></>
   if(tokenRect && self && self.current) {
     grammar = 
@@ -139,6 +136,7 @@ const TextEditor: FC = (): ReactElement => {
   
   return (
     <TextContainer>
+      <TextEditorTimers controller={props.controller}/>
       <span>
         <button onClick={() => appContext?.getCmdHistory().undo_last_command()}>Desfazer</button>
         <button onClick={() => appContext?.getCmdHistory().redo_last_command()}>Refazer</button>
@@ -155,8 +153,6 @@ const TextEditor: FC = (): ReactElement => {
       <span>
         <input type="range" min={0} max={tokenRange} onChange={onSliderChange}></input>
         <button onClick={test_select}> Test Select </button>
-        <button onClick={copyText}>copy</button>
-        <button onClick={pasteText}>paste</button>
         </span>
     </TextContainer>
   );

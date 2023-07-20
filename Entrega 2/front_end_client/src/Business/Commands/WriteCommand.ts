@@ -2,6 +2,8 @@ import { ICommand } from "./ICommand";
 
 export class WriteCommand extends ICommand
 {
+    private prevCaretPosition: number;
+    private newCaretPosition: number;
     private prevState: string;
     private newState: string;
     private textEditorNode: HTMLDivElement;
@@ -16,13 +18,81 @@ export class WriteCommand extends ICommand
 
         this.prevState = prevState;
         this.newState = newState;
+        this.prevCaretPosition = this.getCaretPosition();
+        this.newCaretPosition = this.getCaretPosition();
+    }
+
+    private getCaretPosition() {
+        const temp = document.createTextNode("\0");
+        this.selection.getRangeAt(0).insertNode(temp);
+        const caretPosition = this.textEditorNode.innerText.indexOf("\0");
+        temp.parentNode?.removeChild(temp);
+
+        return caretPosition;
+    }
+
+    private moveCaretPosition(caretPosition: number, moveToEnd: boolean)
+    {
+        if(moveToEnd)
+        {
+            const child = !this.textEditorNode.lastChild ? this.textEditorNode : this.textEditorNode.lastChild;
+            const offset = child.textContent ? child.textContent.length : 0;
+            this.selection.setPosition(child, offset);
+        }
+        else
+        {
+            const start = this.selection.focusNode;
+            if(start)
+            {
+                console.log("caret position: " + caretPosition);
+                let prevSize = 0;
+                let size = 0;
+                let childNode = null;
+                for(let i = 0; i < start.childNodes.length; i++)
+                {
+                    // console.log(start.childNodes[i].textContent);
+                    const l = start.childNodes[i].textContent?.length;
+                    if(!l){
+                        size = size + 1;
+                        continue;
+                    }
+                    
+                    size = size + l;
+                    if(size >= caretPosition) {
+                        childNode = start.childNodes[i];
+                        prevSize = size - l;
+                        break;
+                    }
+                }
+                if(childNode !== null)
+                {
+                    const deltaC = caretPosition - prevSize - 1;
+                    const offset = deltaC + 1 >= 0 ? deltaC + 1 : 0;
+                    this.selection.setPosition(childNode, offset);
+                }
+                else
+                {
+                    const child = !this.textEditorNode.lastChild ? this.textEditorNode : this.textEditorNode.lastChild;
+                    const offset = child.textContent ? child.textContent.length : 0;
+                    this.selection.setPosition(child, offset);
+                }
+            }
+        }
     }
 
     public override execute(): void {
+        const length = this.newState.length;
+        const a = this.newState.charAt(length-1);
+        const b = this.newState.charAt(length-2);
+        const trailingLineBreak: boolean = a !== "" && a === '\n' && b !== "" && b !== '\n'; 
+        if(trailingLineBreak)
+            this.newState = this.newState.slice(0, -1);
+
+        const caretPosition = this.getCaretPosition();
+        const moveToEnd = caretPosition === this.newState.length || this.newState.length < caretPosition;
+
         this.textEditorNode.innerText = this.newState;
-        const child = !this.textEditorNode.lastChild ? this.textEditorNode : this.textEditorNode.lastChild;
-        const offset = child.textContent ? child.textContent.length : 0;  
-        this.selection.setPosition(child, offset);
+        this.moveCaretPosition(caretPosition, moveToEnd);
         this.onExecuteClbk(this.newState);
     }
 

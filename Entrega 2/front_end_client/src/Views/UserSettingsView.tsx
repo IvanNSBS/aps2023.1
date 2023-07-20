@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { styled } from 'styled-components';
 import { AppContext } from '../AppContext';
 import { UserAccount, UserController } from '../Controllers/UserController';
-import { app } from '@tauri-apps/api';
 
 type UserSettingsProps = {
     userController: UserController;

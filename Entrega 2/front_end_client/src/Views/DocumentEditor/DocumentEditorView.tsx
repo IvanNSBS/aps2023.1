@@ -98,7 +98,7 @@ const DocumentEditorView: FC<DocumentEditorView> = (props: DocumentEditorView): 
                 </form>
                 <button onClick={goToPreviousPage}>Voltar</button>
             </EditorHeader>
-            <TextEditor></TextEditor>
+            <TextEditor controller={controller}></TextEditor>
             <DeleteBtnContainer>
                 <div></div>
                 <button onClick={deleteDocument}>Deletar</button>
