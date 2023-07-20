@@ -22,6 +22,36 @@ export class DocumentController
         }
     }
 
+    public async getDocumentConcent(documentId: string): Promise<string | undefined> { 
+        try
+        {
+            const endpoint = `${this.url}/get_doc_content/${documentId}`;
+            const {data} = await axios.get(endpoint);
+            return data;
+        }
+        catch
+        {
+            return undefined;
+        }
+    }
+
+    public async saveDocument(documentId: string, docContent: string) : Promise<boolean>{
+        try
+        {
+            const endpoint = `${this.url}/save_doc_content`;
+            const jsonData = {
+                "document_id": documentId,
+                "doc_content": docContent
+            }
+            await axios.put(endpoint, jsonData);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
     public async deleteDocument(documentId: string) : Promise<boolean> 
     {
         try

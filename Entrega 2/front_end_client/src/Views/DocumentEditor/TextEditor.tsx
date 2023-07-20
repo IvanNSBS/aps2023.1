@@ -1,4 +1,4 @@
-import React, { FC, ReactElement, useState, useRef, useContext } from 'react';
+import React, { FC, ReactElement, useState, useRef, useContext, useEffect } from 'react';
 import { styled } from 'styled-components';
 import { process_tokens, TokenInfo, TokenChanges } from '../../Business/TextEditor/TextEditorTokenizer';
 import { select_token } from '../../Business/TextEditor/TextTokenSelector';
@@ -49,6 +49,22 @@ const TextEditor: FC<TextEditorProps> = (props:TextEditorProps): ReactElement =>
   const tokensInfo = useRef<TokenInfo[]>([]);
   const self = useRef<HTMLDivElement>(null);
   const appContext = useContext(AppContext);
+
+  useEffect(() => {
+    const fetchData = async function() {
+      const docData = appContext?.getCurrentDocumentInfo();
+      if(!docData || !self || !self.current)
+        return;
+
+      const content = await props.controller.getDocumentConcent(docData.id);
+      if(content) {
+        setCurrentInnerText(content);
+        self.current.innerText = content;
+      }
+    }
+
+    fetchData();
+  }, []);
 
   const updateTokens = function(new_text: string) {
     setCurrentInnerText(new_text);
@@ -138,7 +154,11 @@ const TextEditor: FC<TextEditorProps> = (props:TextEditorProps): ReactElement =>
   
   return (
     <TextContainer>
-      <TextEditorTimers controller={props.controller}/>
+      <TextEditorTimers
+        docDiv={self}
+        documentId={appContext?.getCurrentDocumentInfo()?.id}
+        controller={props.controller}
+      />
       <span>
         <button onClick={() => appContext?.getCmdHistory().undo_last_command()}>Desfazer</button>
         <button onClick={() => appContext?.getCmdHistory().redo_last_command()}>Refazer</button>

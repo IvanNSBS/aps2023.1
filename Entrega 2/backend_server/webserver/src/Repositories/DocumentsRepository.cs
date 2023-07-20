@@ -7,6 +7,8 @@ namespace webserver
         IdNameTuple[] GetAllProjectDocuments(string projectId);
         string CreateDocument(string projectId, string documentName);
         bool ChangeDocumentName(string documentId, string newName);
+        string GetDocumentContent(string documentId);
+        bool SaveDocument(string documentId, string documentContent);
         bool DeleteDocument(string documentId);
     }
 
@@ -49,6 +51,38 @@ namespace webserver
             }
         }
 
+        public bool SaveDocument(string documentId, string documentContent)
+        {
+            using(var scope = _scopeFactory.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                Document? doc = db.Documents.FirstOrDefault(x => x.Id == documentId);
+                if(doc == null) {
+                    Console.WriteLine($"There's no document with id {documentId}");
+                    return false;
+                }
+
+                doc.Content = documentContent;
+                db.SaveChanges();
+                return true;
+            }
+        }
+
+        public string GetDocumentContent(string documentId)
+        {
+            using(var scope = _scopeFactory.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                Document? doc = db.Documents.FirstOrDefault(x => x.Id == documentId);
+                if(doc == null) {
+                    Console.WriteLine($"There's no document with id {documentId}");
+                    return null;
+                }
+
+                return doc.Content;
+            }
+        }
+
         public bool ChangeDocumentName(string documentId, string newName)
         {
             using(var scope = _scopeFactory.CreateScope())
@@ -74,7 +108,7 @@ namespace webserver
                 var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
                 Document? document = db.Documents.FirstOrDefault(x => x.Id == documentId);
                 if(document == null) {
-                    Console.WriteLine($"There's no document with id {documentId}");
+                    Console.WriteLine($"There's no document with id {documentId} or content was not initialized");
                     return false;
                 }
 
