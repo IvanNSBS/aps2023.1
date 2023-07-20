@@ -76,7 +76,7 @@ export const TextEditorTimers: FC<TextEditorTimerProps> = (props: TextEditorTime
             const docContent = props.docDiv.current.innerText;
             controller.saveDocument(props.documentId, docContent);
             // console.log("Saving document...\n" + docContent);
-        }, 3000);
+        }, 1000);
 
         return () => clearInterval(interval);
     }, []);
@@ -101,7 +101,7 @@ export const TextEditorTimers: FC<TextEditorTimerProps> = (props: TextEditorTime
             else{
                 // console.log("Content didn't change since last grammar check...")
             }
-        }, 1000)
+        }, 10000)
 
         return () => clearInterval(grammarInterval);
     }, []);
