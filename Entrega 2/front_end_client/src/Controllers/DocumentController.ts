@@ -1,6 +1,6 @@
 import axios from "axios"
-import { SpellCheckProvider } from "./SpellCheckProvider";
-import { TokenChanges } from "../Business/TextEditor/TextEditorTokenizer";
+import { GrammarCorrection, SpellCheckProvider } from "./SpellCheckProvider";
+import { TokenChanges, TokenInfo } from "../Business/TextEditor/TextEditorTokenizer";
 
 export class DocumentController
 {
@@ -69,8 +69,8 @@ export class DocumentController
         }
     }
 
-    public async getGrammarSuggestions(changes: TokenChanges[]): Promise<TokenChanges[]> {
-        const result =  await this.spellChecker.fetchSuggestions(changes);
+    public async getGrammarSuggestions(changes: TokenInfo[]): Promise<GrammarCorrection[]> {
+        const result = await this.spellChecker.fetchSuggestions(changes);
         return result;
     }
 }

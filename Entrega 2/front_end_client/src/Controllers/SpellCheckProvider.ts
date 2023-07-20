@@ -2,7 +2,7 @@ import axios from "axios";
 import { ChangeState, TokenChanges, TokenInfo } from "../Business/TextEditor/TextEditorTokenizer";
 
 type ProcessedWord = {
-    change: TokenChanges,
+    prevToken: TokenInfo,
     index: number,
     newOffset: number 
 }
@@ -11,6 +11,11 @@ type SuggestedChanges = {
     oldToken: string,
     processedOffset: number,
     suggestion: string
+}
+
+export type GrammarCorrection = {
+    token: TokenInfo,
+    suggestion: string,
 }
 
 export class SpellCheckProvider
@@ -22,8 +27,8 @@ export class SpellCheckProvider
         this.apiKey = import.meta.env.VITE_BING_API_KEY;
     }
 
-    public async fetchSuggestions(changes: TokenChanges[]): Promise<TokenChanges[]> {
-        if(changes.length === 0)
+    public async fetchSuggestions(tokens: TokenInfo[]): Promise<GrammarCorrection[]> {
+        if(tokens.length === 0)
             return [];
 
         let words = "";
@@ -31,24 +36,22 @@ export class SpellCheckProvider
         const processedWords: ProcessedWord[] = []
 
         console.log("spell checker will process those tokens:")
-        console.log(changes);
+        console.log(tokens);
 
-        for(let i = 0; i < changes.length; i++)
+        for(let i = 0; i < tokens.length; i++)
         {
-            const change = changes[i];
-            if(change.change_state === ChangeState.DELETED)
-                continue;
-            if(!change.new_token)
+            const tk = tokens[i];
+            if(!tk)
                 continue;
 
-            words = words + change.new_token.word + " ";
+            words = words + tk.word + " ";
             processedWords.push({
-                change: change,
+                prevToken: tk,
                 index: i,
                 newOffset: offset
             });
 
-            offset += change.new_token.word.length + 1;
+            offset += tk.word.length + 1;
         }
 
         const endpoint = `${this.url}${words}`;
@@ -80,7 +83,7 @@ export class SpellCheckProvider
             suggestions.push(data);
         }
 
-        const result: TokenChanges[] = [];
+        const result: GrammarCorrection[] = [];
         for(let i = 0; i < suggestions.length; i++)
         {
             const suggestion = suggestions[i];
@@ -91,24 +94,9 @@ export class SpellCheckProvider
                 continue;
             }
 
-            const newToken = word.change.new_token;
-            if(!newToken) {
-                console.error("Found word but new token was null. This should be impossible");
-                continue;
-            }
-
-            const newInfo: TokenInfo = {
-                uuid: newToken.uuid,
-                word: suggestion.suggestion,
-                row: newToken.row,
-                range_start: newToken.range_start,
-                range_end: newToken.range_start + suggestion.suggestion.length
-            }
-
-            const out: TokenChanges = {
-                change_state: ChangeState.CHANGED,
-                prev_token: word?.change.new_token,
-                new_token: newInfo
+            const out: GrammarCorrection = {
+                token: word.prevToken,
+                suggestion: suggestion.suggestion
             }
 
             result.push(out);

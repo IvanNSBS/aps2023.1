@@ -18,31 +18,23 @@ export const TextEditorTimers: FC<TextEditorTimerProps> = (props: TextEditorTime
     let grammarInterval: NodeJS.Timer;
     let currentContent: string = "";
 
-    const fetchGrammarSuggestions = async function(changes: TokenChanges[]) {
+    const fetchGrammarSuggestions = async function(tokens: TokenInfo[]) {
         const docDiv = props.docDiv;
         const node = docDiv.current;
-        if(!docDiv){
+        if(!docDiv || !node){
             console.error("docDiv props is undefined. This shouldn't be possible.")
+            return;
         }
 
-        console.log("fetch grammar changes:")
-        console.log(changes);
-        const output = await props.controller.getGrammarSuggestions(changes);
+        const output = await props.controller.getGrammarSuggestions(tokens);
         let suggestions: GrammarSuggestionInfo[] = [];
 
         for(let i = 0; i < output.length; i++)
         {
-            const prevToken = output[i].prev_token; 
-            const newToken = output[i].new_token; 
-            if(!prevToken || !newToken)
-                continue;
-            if(!node)
-                continue;
-
             suggestions.push({
-                tokenInfo: prevToken,
-                suggestion: newToken.word,
-                rect: select_token(node, prevToken).getBoundingClientRect()
+                tokenInfo: output[i].token,
+                suggestion: output[i].suggestion,
+                rect: select_token(node, output[i].token).getBoundingClientRect()
             });
         }
 
@@ -93,10 +85,7 @@ export const TextEditorTimers: FC<TextEditorTimerProps> = (props: TextEditorTime
 
                 console.log("Content changed since last grammar check!")
                 currentContent = props.docDiv.current.innerText;
-                const [tokenInfo, tokenChanges] = process_tokens(currentContent, props.tokensInfo.current);
-                console.log(tokenInfo);
-                console.log(tokenChanges);
-                fetchGrammarSuggestions(tokenChanges);
+                fetchGrammarSuggestions(props.tokensInfo.current);
             }
             else{
                 // console.log("Content didn't change since last grammar check...")

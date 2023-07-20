@@ -51,7 +51,6 @@ const TextEditor: FC<TextEditorProps> = (props:TextEditorProps): ReactElement =>
   const [currentInnerText, setCurrentInnerText] = useState<string>("");
   const [suggestionTokens, setSuggestionTokens] = useState<GrammarSuggestionInfo[]>([]);
 
-  const prevTokensInfo = useRef<TokenInfo[]>([]);
   const tokensInfo = useRef<TokenInfo[]>([]);
   const self = useRef<HTMLDivElement>(null);
   const appContext = useContext(AppContext);
@@ -67,7 +66,6 @@ const TextEditor: FC<TextEditorProps> = (props:TextEditorProps): ReactElement =>
         setCurrentInnerText(content);
         self.current.innerText = content;
         updateTokens(content);
-        prevTokensInfo.current = tokensInfo.current;
       }
     }
 
@@ -77,7 +75,6 @@ const TextEditor: FC<TextEditorProps> = (props:TextEditorProps): ReactElement =>
   const updateTokens = function(new_text: string) {
     setCurrentInnerText(new_text);
     const [new_tokens, changes] = process_tokens(new_text, tokensInfo.current);
-    prevTokensInfo.current = tokensInfo.current; 
     tokensInfo.current = new_tokens;
   }
 
@@ -103,6 +100,9 @@ const TextEditor: FC<TextEditorProps> = (props:TextEditorProps): ReactElement =>
     const newText = evt.target.innerText;
     const writeCmd = new WriteCommand(self.current, selection, currentInnerText, newText, updateTokens);
     appContext?.getCmdHistory().add_command(writeCmd);
+
+    console.log(self.current);
+    console.log(newText);
   }
 
   const acceptGrammarSuggestion = function(token: TokenInfo, new_word: string): void {
@@ -136,7 +136,7 @@ const TextEditor: FC<TextEditorProps> = (props:TextEditorProps): ReactElement =>
         documentId={appContext?.getCurrentDocumentInfo()?.id}
         setSuggestionTokens={setSuggestionTokens}
         controller={props.controller}
-        tokensInfo={prevTokensInfo}
+        tokensInfo={tokensInfo}
       />
       <span>
         <button onClick={() => appContext?.getCmdHistory().undo_last_command()}>Desfazer</button>
@@ -158,7 +158,7 @@ const TextEditor: FC<TextEditorProps> = (props:TextEditorProps): ReactElement =>
       }
       <TextInput 
         ref={self} 
-        contentEditable 
+        contentEditable
         suppressContentEditableWarning 
         spellCheck="false"
         onInput={onChange}
