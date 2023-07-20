@@ -22,13 +22,16 @@ export class SpellCheckProvider
         this.apiKey = import.meta.env.VITE_BING_API_KEY;
     }
 
-    public async fetchSuggestions(changes: TokenChanges[]) {
+    public async fetchSuggestions(changes: TokenChanges[]): Promise<TokenChanges[]> {
         if(changes.length === 0)
             return [];
 
         let words = "";
         let offset = 0;
         const processedWords: ProcessedWord[] = []
+
+        console.log("spell checker will process those tokens:")
+        console.log(changes);
 
         for(let i = 0; i < changes.length; i++)
         {
@@ -111,7 +114,7 @@ export class SpellCheckProvider
             result.push(out);
         }
 
-        console.log("Processing output: ");
         console.log(result);
+        return result;
     }
 }

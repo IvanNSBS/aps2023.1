@@ -8,9 +8,16 @@ import { AcceptGrammarSuggestionCommand } from '../../Business/Commands/AcceptGr
 import { WriteCommand } from '../../Business/Commands/WriteCommand';
 import { TextEditorTimers } from './TextEditorTimers';
 import { DocumentController } from '../../Controllers/DocumentController';
+import { token } from 'stylis';
 
 type TextEditorProps = {
   controller: DocumentController;
+}
+
+export type GrammarSuggestionInfo = {
+  tokenInfo: TokenInfo,
+  suggestion: string,
+  rect: DOMRect
 }
 
 const TextContainer = styled.div`
@@ -42,10 +49,9 @@ const TextInput = styled.div`
 
 const TextEditor: FC<TextEditorProps> = (props:TextEditorProps): ReactElement => {
   const [currentInnerText, setCurrentInnerText] = useState<string>("");
-  const [tokenRect, setTokenRect] = useState<DOMRect>();
-  const [tokenRange, setTokenRange] = useState<number>(0);
-  const [tokenIndex, setTokenIndex] = useState<number>(0);
+  const [suggestionTokens, setSuggestionTokens] = useState<GrammarSuggestionInfo[]>([]);
 
+  const prevTokensInfo = useRef<TokenInfo[]>([]);
   const tokensInfo = useRef<TokenInfo[]>([]);
   const self = useRef<HTMLDivElement>(null);
   const appContext = useContext(AppContext);
@@ -60,6 +66,8 @@ const TextEditor: FC<TextEditorProps> = (props:TextEditorProps): ReactElement =>
       if(content) {
         setCurrentInnerText(content);
         self.current.innerText = content;
+        updateTokens(content);
+        prevTokensInfo.current = tokensInfo.current;
       }
     }
 
@@ -69,18 +77,8 @@ const TextEditor: FC<TextEditorProps> = (props:TextEditorProps): ReactElement =>
   const updateTokens = function(new_text: string) {
     setCurrentInnerText(new_text);
     const [new_tokens, changes] = process_tokens(new_text, tokensInfo.current);
+    prevTokensInfo.current = tokensInfo.current; 
     tokensInfo.current = new_tokens;
-    setTokenRange(new_tokens.length-1);
-
-    if(tokenRect)
-    {
-      const selected = new_tokens[tokenIndex];
-      const found = changes.find(x => x.new_token && x.new_token.uuid === selected.uuid);
-      if(found) {
-        console.log("changed token that has grammar correction!");
-        setTokenRect(undefined);
-      }
-    }
   }
 
   const onKeyDown = function(evt: any) {
@@ -113,8 +111,12 @@ const TextEditor: FC<TextEditorProps> = (props:TextEditorProps): ReactElement =>
       return;
     
     var tk = tokensInfo.current.find(x => x.uuid === token.uuid);
-    if(!tk)
+    if(!tk){
+      console.log("Token not found :(");
+      console.log(tokensInfo);
+      console.log(token.uuid);
       return;
+    }
     
     const select_range = select_token(self.current, tk);
     selection.removeAllRanges();
@@ -127,43 +129,33 @@ const TextEditor: FC<TextEditorProps> = (props:TextEditorProps): ReactElement =>
     appContext?.getCmdHistory().add_command(acceptSuggestionCmd);
   }
 
-  const test_select = function() {
-    if(self === null || self.current === null)
-      return;
-
-    const token = tokensInfo.current[tokenIndex];
-    const select_range = select_token(self.current, token);
-    setTokenRect(select_range.getBoundingClientRect());
-    console.log(select_range.getBoundingClientRect());
-  }
-  
-  const onSliderChange = function(new_val: any) {
-    setTokenIndex(new_val.target.value);
-  }
-
-  let grammar = <></>
-  if(tokenRect && self && self.current) {
-    grammar = 
-    <SuggestGrammarHighlight 
-      rect={tokenRect} 
-      word_suggestion='lorem ipsummmmmasdasdasdsam'
-      word_token={tokensInfo.current[tokenIndex]}
-      accept_grammar_suggestion={acceptGrammarSuggestion}
-      cancel_suggest_grammar={() => setTokenRect(undefined)}/>
-  }
-  
   return (
     <TextContainer>
       <TextEditorTimers
         docDiv={self}
         documentId={appContext?.getCurrentDocumentInfo()?.id}
+        setSuggestionTokens={setSuggestionTokens}
         controller={props.controller}
+        tokensInfo={prevTokensInfo}
       />
       <span>
         <button onClick={() => appContext?.getCmdHistory().undo_last_command()}>Desfazer</button>
         <button onClick={() => appContext?.getCmdHistory().redo_last_command()}>Refazer</button>
       </span>
-      {grammar}
+      {
+        suggestionTokens.map((item, index) =>
+          <SuggestGrammarHighlight
+            key={item.tokenInfo.uuid} 
+            rect={item.rect} 
+            word_suggestion={item.suggestion}
+            word_token={item.tokenInfo}
+            accept_grammar_suggestion={acceptGrammarSuggestion}
+            cancel_suggest_grammar={() => {
+              setSuggestionTokens(suggestionTokens.filter(x => x.tokenInfo.uuid !== item.tokenInfo.uuid))
+            }}
+          />
+        )
+      }
       <TextInput 
         ref={self} 
         contentEditable 
@@ -172,10 +164,6 @@ const TextEditor: FC<TextEditorProps> = (props:TextEditorProps): ReactElement =>
         onInput={onChange}
         onKeyDown={onKeyDown}>
       </TextInput>
-      <span>
-        <input type="range" min={0} max={tokenRange} onChange={onSliderChange}></input>
-        <button onClick={test_select}> Test Select </button>
-        </span>
     </TextContainer>
   );
 }

@@ -69,7 +69,8 @@ export class DocumentController
         }
     }
 
-    public async getGrammarSuggestions(changes: TokenChanges[]) {
-        this.spellChecker.fetchSuggestions(changes);
+    public async getGrammarSuggestions(changes: TokenChanges[]): Promise<TokenChanges[]> {
+        const result =  await this.spellChecker.fetchSuggestions(changes);
+        return result;
     }
 }

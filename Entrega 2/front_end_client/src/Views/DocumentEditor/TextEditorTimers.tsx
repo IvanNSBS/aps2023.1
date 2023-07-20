@@ -1,11 +1,15 @@
 import { ReactElement, FC, useEffect, useState } from "react";
 import { DocumentController } from "../../Controllers/DocumentController";
 import { TokenChanges, TokenInfo, process_tokens } from "../../Business/TextEditor/TextEditorTokenizer";
+import { GrammarSuggestionInfo } from "./TextEditor";
+import { select_token } from "../../Business/TextEditor/TextTokenSelector";
 
 type TextEditorTimerProps = {
     controller: DocumentController;
     documentId: string | undefined;
     docDiv: React.RefObject<HTMLDivElement>;
+    setSuggestionTokens(changes: GrammarSuggestionInfo[]): void;
+    tokensInfo: React.RefObject<TokenInfo[]>;
 };
 
 export const TextEditorTimers: FC<TextEditorTimerProps> = (props: TextEditorTimerProps) => {
@@ -13,10 +17,36 @@ export const TextEditorTimers: FC<TextEditorTimerProps> = (props: TextEditorTime
     let interval: NodeJS.Timer;
     let grammarInterval: NodeJS.Timer;
     let currentContent: string = "";
-    let currentTokens: TokenInfo[] = [];
 
     const fetchGrammarSuggestions = async function(changes: TokenChanges[]) {
-        await props.controller.getGrammarSuggestions(changes);
+        const docDiv = props.docDiv;
+        const node = docDiv.current;
+        if(!docDiv){
+            console.error("docDiv props is undefined. This shouldn't be possible.")
+        }
+
+        console.log("fetch grammar changes:")
+        console.log(changes);
+        const output = await props.controller.getGrammarSuggestions(changes);
+        let suggestions: GrammarSuggestionInfo[] = [];
+
+        for(let i = 0; i < output.length; i++)
+        {
+            const prevToken = output[i].prev_token; 
+            const newToken = output[i].new_token; 
+            if(!prevToken || !newToken)
+                continue;
+            if(!node)
+                continue;
+
+            suggestions.push({
+                tokenInfo: prevToken,
+                suggestion: newToken.word,
+                rect: select_token(node, prevToken).getBoundingClientRect()
+            });
+        }
+
+        props.setSuggestionTokens(suggestions);
     };
 
     useEffect(() => {
@@ -29,8 +59,6 @@ export const TextEditorTimers: FC<TextEditorTimerProps> = (props: TextEditorTime
                 return;
             
             currentContent = content;
-            const [tokenInfo, tokenChanges] = process_tokens(content, currentTokens);
-            currentTokens = tokenInfo;
         };
         fetchInitialData();
 
@@ -58,11 +86,14 @@ export const TextEditorTimers: FC<TextEditorTimerProps> = (props: TextEditorTime
             if(!props.docDiv.current)
                 return;
 
-            if(currentContent !== props.docDiv.current.innerText){
+            if(currentContent !== props.docDiv.current.innerText) {
+                if(!props.tokensInfo || !props.tokensInfo.current){
+                    return;
+                }
+
                 console.log("Content changed since last grammar check!")
                 currentContent = props.docDiv.current.innerText;
-                const [tokenInfo, tokenChanges] = process_tokens(currentContent, currentTokens);
-                currentTokens = tokenInfo;
+                const [tokenInfo, tokenChanges] = process_tokens(currentContent, props.tokensInfo.current);
                 console.log(tokenInfo);
                 console.log(tokenChanges);
                 fetchGrammarSuggestions(tokenChanges);

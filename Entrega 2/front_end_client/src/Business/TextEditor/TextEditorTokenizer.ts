@@ -89,12 +89,13 @@ export const process_tokens = function(page_content: string, prev_tokens: TokenI
         else if(i < tokens.length && i < prev_tokens.length)
         {
             const changed: boolean = !compare_tokens(prev_tokens[i], tokens[i]);
+            tokens[i].uuid = prev_tokens[i].uuid;
             if(changed)
             {
                 changes.push({
-                prev_token: prev_tokens[i],
-                new_token: tokens[i],
-                change_state: ChangeState.CHANGED
+                    prev_token: prev_tokens[i],
+                    new_token: tokens[i],
+                    change_state: ChangeState.CHANGED
                 });
             }
         }
