@@ -8,7 +8,6 @@ import { AcceptGrammarSuggestionCommand } from '../../Business/Commands/AcceptGr
 import { WriteCommand } from '../../Business/Commands/WriteCommand';
 import { TextEditorTimers } from './TextEditorTimers';
 import { DocumentController } from '../../Controllers/DocumentController';
-import { token } from 'stylis';
 
 type TextEditorProps = {
   controller: DocumentController;
@@ -51,9 +50,67 @@ const TextEditor: FC<TextEditorProps> = (props:TextEditorProps): ReactElement =>
   const [currentInnerText, setCurrentInnerText] = useState<string>("");
   const [suggestionTokens, setSuggestionTokens] = useState<GrammarSuggestionInfo[]>([]);
 
+  const caretPosition = useRef<number>(0);
   const tokensInfo = useRef<TokenInfo[]>([]);
   const self = useRef<HTMLDivElement>(null);
   const appContext = useContext(AppContext);
+
+  const getCaretPosition = function():number {
+    const selection = getSelection();
+    const textEditorNode = self.current;
+    if(!selection || !textEditorNode)
+      return 0;
+
+    const temp = document.createTextNode("\0");
+    selection.getRangeAt(0).insertNode(temp);
+    const caretPosition = textEditorNode.innerText.indexOf("\0");
+    temp.parentNode?.removeChild(temp);
+
+    return caretPosition;
+  }
+
+  const moveCaretPosition = function(caretPosition: number)
+  {
+      const selection = getSelection();
+      const textEditorNode = self.current;
+      if(!selection || !textEditorNode)
+        return;
+
+      const start = selection.focusNode;
+      if(!start)
+          return;
+
+      let prevSize = 0;
+      let size = 0;
+      let childNode = null;
+      for(let i = 0; i < start.childNodes.length; i++)
+      {
+          const l = start.childNodes[i].textContent?.length;
+          if(!l){
+              size = size + 1;
+              continue;
+          }
+          
+          size = size + l;
+          if(size >= caretPosition) {
+              childNode = start.childNodes[i];
+              prevSize = size - l;
+              break;
+          }
+      }
+      if(childNode !== null)
+      {
+          const deltaC = caretPosition - prevSize - 1;
+          const offset = deltaC + 1 >= 0 ? deltaC + 1 : 0;
+          selection.setPosition(childNode, offset);
+      }
+      else
+      {
+          const child = !textEditorNode.lastChild ? textEditorNode : textEditorNode.lastChild;
+          const offset = child.textContent ? child.textContent.length : 0;
+          selection.setPosition(child, offset);
+      }
+  }
 
   useEffect(() => {
     const fetchData = async function() {
@@ -72,10 +129,20 @@ const TextEditor: FC<TextEditorProps> = (props:TextEditorProps): ReactElement =>
     fetchData();
   }, []);
 
+  useEffect(() => {
+    if(!self || !self.current)
+      return;
+
+    self.current.innerText = currentInnerText;
+    moveCaretPosition(caretPosition.current);
+
+  }, [currentInnerText]);
+
   const updateTokens = function(new_text: string) {
     setCurrentInnerText(new_text);
     const [new_tokens, changes] = process_tokens(new_text, tokensInfo.current);
     tokensInfo.current = new_tokens;
+    caretPosition.current = getCaretPosition();
   }
 
   const onKeyDown = function(evt: any) {
@@ -96,13 +163,9 @@ const TextEditor: FC<TextEditorProps> = (props:TextEditorProps): ReactElement =>
     const selection = getSelection();
     if(!self || !self.current || !selection)
       return;
-
-    const newText = evt.target.innerText;
+    const newText = JSON.parse(JSON.stringify(evt.target.innerText));
     const writeCmd = new WriteCommand(self.current, selection, currentInnerText, newText, updateTokens);
     appContext?.getCmdHistory().add_command(writeCmd);
-
-    console.log(self.current);
-    console.log(newText);
   }
 
   const acceptGrammarSuggestion = function(token: TokenInfo, new_word: string): void {
