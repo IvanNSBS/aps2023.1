@@ -12,7 +12,6 @@ type AppCtx = {
 
     getCurrentDocumentInfo():ItemInfo | undefined;
     setCurrentDocumentInfo(newInfo: ItemInfo | undefined): void;
-    getCmdHistory(): CommandsHistory;
 
     logout():void;
 }
@@ -24,7 +23,6 @@ type AppCtxProviderProps = {
 export const AppContext = React.createContext<AppCtx | null>(null);
 
 export const AppContextProvider: FC<AppCtxProviderProps> = (props:AppCtxProviderProps): ReactElement => {
-    const cmdHistory = useRef<CommandsHistory>(new CommandsHistory(128));
     const [userId, setUserId] = useState<string>("$$NO_USER$$");
     const [projectInfo, setProjectInfo] = useState<ItemInfo|undefined>(undefined);
     const [documentInfo, setDocumentInfo] = useState<ItemInfo|undefined>(undefined);
@@ -44,7 +42,6 @@ export const AppContextProvider: FC<AppCtxProviderProps> = (props:AppCtxProvider
         setCurrentProjectInfo: setProjectInfo,
         getCurrentDocumentInfo: () => documentInfo,
         setCurrentDocumentInfo: setDocumentInfo,
-        getCmdHistory: () => cmdHistory.current,
         logout: logout,
     };
 

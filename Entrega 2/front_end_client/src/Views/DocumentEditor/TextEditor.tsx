@@ -8,6 +8,7 @@ import { AcceptGrammarSuggestionCommand } from '../../Business/Commands/AcceptGr
 import { WriteCommand } from '../../Business/Commands/WriteCommand';
 import { TextEditorTimers } from './TextEditorTimers';
 import { DocumentController } from '../../Controllers/DocumentController';
+import { CommandsHistory } from '../../Business/Commands/CommandsHistory';
 
 type TextEditorProps = {
   controller: DocumentController;
@@ -49,6 +50,7 @@ const TextInput = styled.div`
 const TextEditor: FC<TextEditorProps> = (props:TextEditorProps): ReactElement => {
   const [currentInnerText, setCurrentInnerText] = useState<string>("");
   const [suggestionTokens, setSuggestionTokens] = useState<GrammarSuggestionInfo[]>([]);
+  const cmdHistory = useRef<CommandsHistory>(new CommandsHistory(256));
 
   const caretPosition = useRef<number>(0);
   const tokensInfo = useRef<TokenInfo[]>([]);
@@ -150,11 +152,11 @@ const TextEditor: FC<TextEditorProps> = (props:TextEditorProps): ReactElement =>
     {
       if(evt.code === "KeyZ"){
         evt.preventDefault();
-        appContext?.getCmdHistory().undo_last_command();
+        cmdHistory.current.undo_last_command();
       }
       if(evt.code === "KeyY"){
         evt.preventDefault();
-        appContext?.getCmdHistory().redo_last_command();
+        cmdHistory.current.redo_last_command();
       }
     }
   }
@@ -165,7 +167,7 @@ const TextEditor: FC<TextEditorProps> = (props:TextEditorProps): ReactElement =>
       return;
     const newText = JSON.parse(JSON.stringify(evt.target.innerText));
     const writeCmd = new WriteCommand(self.current, selection, currentInnerText, newText, updateTokens);
-    appContext?.getCmdHistory().add_command(writeCmd);
+    cmdHistory.current.add_command(writeCmd);
   }
 
   const acceptGrammarSuggestion = function(token: TokenInfo, new_word: string): void {
@@ -189,7 +191,7 @@ const TextEditor: FC<TextEditorProps> = (props:TextEditorProps): ReactElement =>
       return;
 
     const acceptSuggestionCmd = new AcceptGrammarSuggestionCommand(self.current, selection.focusNode.textContent, token, new_word, updateTokens);
-    appContext?.getCmdHistory().add_command(acceptSuggestionCmd);
+    cmdHistory.current.add_command(acceptSuggestionCmd);
   }
 
   return (
@@ -202,8 +204,8 @@ const TextEditor: FC<TextEditorProps> = (props:TextEditorProps): ReactElement =>
         tokensInfo={tokensInfo}
       />
       <span>
-        <button onClick={() => appContext?.getCmdHistory().undo_last_command()}>Desfazer</button>
-        <button onClick={() => appContext?.getCmdHistory().redo_last_command()}>Refazer</button>
+        <button onClick={() => cmdHistory.current.undo_last_command()}>Desfazer</button>
+        <button onClick={() => cmdHistory.current.redo_last_command()}>Refazer</button>
       </span>
       {
         suggestionTokens.map((item, index) =>
