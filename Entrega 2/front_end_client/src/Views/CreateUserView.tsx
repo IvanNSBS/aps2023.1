@@ -3,10 +3,10 @@ import { useNavigate } from "react-router-dom";
 
 import { styled } from 'styled-components';
 import AppRoutes from '../AppRoutes';
-import { CreateUserStatus, LoginController } from '../Controllers/LoginController';
+import { CreateUserStatus, LoginPresenter } from '../Controllers/LoginController';
 
 type CreateUserProps = {
-    loginController: LoginController;
+    loginController: LoginPresenter;
 }
 
 const RegisterForms = styled.form`

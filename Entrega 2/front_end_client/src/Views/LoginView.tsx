@@ -2,11 +2,11 @@ import React, { FC, ReactElement, useContext, useRef, useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import { styled } from 'styled-components';
 import AppRoutes from '../AppRoutes';
-import { LoginController, LoginOutput, LoginStatus } from '../Controllers/LoginController';
+import { LoginPresenter, LoginOutput, LoginStatus } from '../Controllers/LoginController';
 import { AppContext } from '../AppContext';
 
 type LoginProps = {
-    loginController: LoginController;
+    loginController: LoginPresenter;
 }
 
 const LoginForms = styled.form`
@@ -24,7 +24,7 @@ const LoginView: FC<LoginProps> = (props: LoginProps): ReactElement => {
     const forms = useRef<HTMLFormElement>(null);
     const appCtx = useContext(AppContext);
     const [wasWrongInput, setWasWrongInput] = useState<boolean>(false);
-    const loginController: LoginController = props.loginController;
+    const loginController: LoginPresenter = props.loginController;
 
     const redirectToProjects = () => {
         navigate(AppRoutes.projects);

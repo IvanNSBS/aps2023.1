@@ -16,7 +16,7 @@ export type LoginOutput = {
     loginStatus: LoginStatus;
 }
 
-export class LoginController
+export class LoginPresenter
 {
     private url: string = "http://127.0.0.1:5000/accounts"
 
