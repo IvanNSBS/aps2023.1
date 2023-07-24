@@ -13,10 +13,13 @@ import { ProjectsPresenter } from "./Controllers/ProjectsPresenter";
 import { DocumentController } from "./Controllers/DocumentController";
 import { UserController } from "./Controllers/UserController";
 import UserSettingsView from "./Views/UserSettingsView";
+import { SpellCheckProvider } from "./Controllers/SpellCheckProvider";
+import { ISpellCheckProvider } from "./Controllers/ISpellCheckProvider";
 
 const loginPresenter = new LoginPresenter();
 const projectsPresenter = new ProjectsPresenter();
-const documentController = new DocumentController();
+const spellCheckProvider: ISpellCheckProvider = new SpellCheckProvider();
+const documentController = new DocumentController(spellCheckProvider);
 const userController = new UserController();
 
 const App: FC = (): ReactElement => {

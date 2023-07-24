@@ -1,5 +1,6 @@
 import axios from "axios";
 import { ChangeState, TokenChanges, TokenInfo } from "../Business/TextEditor/TextEditorTokenizer";
+import { ISpellCheckProvider } from "./ISpellCheckProvider";
 
 type ProcessedWord = {
     prevToken: TokenInfo,
@@ -18,12 +19,13 @@ export type GrammarCorrection = {
     suggestion: string,
 }
 
-export class SpellCheckProvider
+export class SpellCheckProvider extends ISpellCheckProvider
 {
     private apiKey: string;
     private url = "https://api.bing.microsoft.com/v7.0/spellcheck?text=";
 
     constructor() {
+        super()
         this.apiKey = import.meta.env.VITE_BING_API_KEY;
     }
 

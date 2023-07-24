@@ -1,11 +1,16 @@
 import axios from "axios"
-import { GrammarCorrection, SpellCheckProvider } from "./SpellCheckProvider";
-import { TokenChanges, TokenInfo } from "../Business/TextEditor/TextEditorTokenizer";
+import { GrammarCorrection } from "./SpellCheckProvider";
+import { TokenInfo } from "../Business/TextEditor/TextEditorTokenizer";
+import { ISpellCheckProvider } from "./ISpellCheckProvider";
 
 export class DocumentController
 {
     private url: string = "http://127.0.0.1:5000/documents";
-    private spellChecker: SpellCheckProvider = new SpellCheckProvider();
+    private spellChecker: ISpellCheckProvider;
+
+    constructor(spellcheckProvider: ISpellCheckProvider){
+        this.spellChecker = spellcheckProvider;
+    }
 
     public async changeDocumentName(documentId: string, newName: string): Promise<boolean> 
     {
