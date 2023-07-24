@@ -1,5 +1,5 @@
 import axios from "axios"
-import { GrammarCorrection } from "./SpellCheckProvider";
+import { GrammarCorrection } from "./BingSpellCheckProvider";
 import { TokenInfo } from "../Business/TextEditor/TextEditorTokenizer";
 import { ISpellCheckProvider } from "./ISpellCheckProvider";
 

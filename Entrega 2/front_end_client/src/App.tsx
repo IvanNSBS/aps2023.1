@@ -13,12 +13,12 @@ import { ProjectsPresenter } from "./Controllers/ProjectsPresenter";
 import { DocumentController } from "./Controllers/DocumentController";
 import { UserController } from "./Controllers/UserController";
 import UserSettingsView from "./Views/UserSettingsView";
-import { SpellCheckProvider } from "./Controllers/SpellCheckProvider";
+import { BingSpellCheckProvider } from "./Controllers/BingSpellCheckProvider";
 import { ISpellCheckProvider } from "./Controllers/ISpellCheckProvider";
 
 const loginPresenter = new LoginPresenter();
 const projectsPresenter = new ProjectsPresenter();
-const spellCheckProvider: ISpellCheckProvider = new SpellCheckProvider();
+const spellCheckProvider: ISpellCheckProvider = new BingSpellCheckProvider();
 const documentController = new DocumentController(spellCheckProvider);
 const userController = new UserController();
 

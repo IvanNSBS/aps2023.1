@@ -1,5 +1,5 @@
 import { TokenInfo } from "../Business/TextEditor/TextEditorTokenizer";
-import { GrammarCorrection } from "./SpellCheckProvider";
+import { GrammarCorrection } from "./BingSpellCheckProvider";
 
 export class ISpellCheckProvider{
     public async fetchSuggestions(tokens: TokenInfo[]): Promise<GrammarCorrection[]> {

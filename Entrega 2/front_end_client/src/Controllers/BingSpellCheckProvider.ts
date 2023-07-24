@@ -19,7 +19,7 @@ export type GrammarCorrection = {
     suggestion: string,
 }
 
-export class SpellCheckProvider extends ISpellCheckProvider
+export class BingSpellCheckProvider extends ISpellCheckProvider
 {
     private apiKey: string;
     private url = "https://api.bing.microsoft.com/v7.0/spellcheck?text=";
