@@ -6,24 +6,24 @@ namespace webserver
 {
     [Route("projects")]
     [ApiController]
-    public class ProjectsController : ControllerBase
+    public class ProjectsRoute : ControllerBase
     {
-        private readonly IProjectsRepository _projectsRepo;
-        private readonly IDocumentsRepository _docsRepo;
+        private readonly AppFacade _facade;
 
-        public ProjectsController(IProjectsRepository projectsRepo, IDocumentsRepository docsRepo)
+        public ProjectsRoute(AppFacade facade)
         {
-            _projectsRepo = projectsRepo;
-            _docsRepo = docsRepo;
+            _facade = facade;
         }
 
         [HttpGet]
         [Route("get_user_projects/{userId}")]
         public ActionResult<string> GetUserProjects(string userId)
         {
-            var allProjects = _projectsRepo.GetAllUserProjects(userId);
-            string jsonString = JsonConvert.SerializeObject(allProjects);
-            return jsonString;
+            string? projectsJson = _facade.GetAllUserProjectsJson(userId);
+            if(projectsJson == null)
+                return StatusCode(404, "User does not exist");
+
+            return Ok(projectsJson);
         }
 
         [HttpPost]
@@ -43,7 +43,7 @@ namespace webserver
             if(userId == null || projectName == null)
                 return StatusCode(404, "Invalid userId or projectName");
 
-            string projectId = _projectsRepo.CreateProject(userId, projectName);
+            string? projectId = _facade.CreateProject(userId, projectName);
             if(projectId == null)
                 return StatusCode(404, "Could not create project for user. userId does not exist");
 
@@ -54,9 +54,11 @@ namespace webserver
         [Route("get_project_documents/{projectId}")]
         public ActionResult<string> GetProjectDocuments(string projectId)
         {
-            var allDocuments = _docsRepo.GetAllProjectDocuments(projectId);
-            string allDocsJson = JsonConvert.SerializeObject(allDocuments);
-            return allDocsJson;
+            string? allDocumentsJson = _facade.GetAllProjectDocumentsJson(projectId);
+            if(allDocumentsJson == null)
+                return StatusCode(404, "Project does not exist");
+
+            return Ok(allDocumentsJson);
         }
 
         [HttpPost]
@@ -76,7 +78,7 @@ namespace webserver
             if(projectId == null || documentName == null)
                 return StatusCode(404, "Invalid Project Id or Document Name");
 
-            string documentId = _docsRepo.CreateDocument(projectId, documentName);
+            string? documentId = _facade.CreateDocument(projectId, documentName);
             if(documentId == null)
                 return StatusCode(404, "Could not create document for project. ProjectId does not exist");
 
@@ -100,7 +102,7 @@ namespace webserver
             if(projectId == null || newName == null)
                 return StatusCode(404, "Invalid Project Id or new project name");
 
-            bool changedNames = _projectsRepo.ChangeProjectName(projectId, newName);
+            bool changedNames = _facade.ChangeProjectName(projectId, newName);
             return changedNames;
         }
 
@@ -108,7 +110,7 @@ namespace webserver
         [Route("delete_project/{projectId}")]
         public ActionResult<bool> DeleteProject(string projectId)
         {
-            return _projectsRepo.DeleteProject(projectId);
+            return _facade.DeleteProject(projectId);
         }
     }
 }

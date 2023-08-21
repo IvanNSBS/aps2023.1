@@ -7,13 +7,13 @@ namespace webserver
 {
     [Route("accounts")]
     [ApiController]
-    public class AccountsController : ControllerBase
+    public class AccountsRoute : ControllerBase
     {
-        private readonly IAccountsRepository _repo;
+        private readonly AppFacade _facade;
 
-        public AccountsController(IAccountsRepository repo)
+        public AccountsRoute(AppFacade facade)
         {
-            _repo = repo;
+            _facade = facade;
         }
 
         [HttpPost]
@@ -33,7 +33,7 @@ namespace webserver
             if(email == null || username == null || password == null)
                 return StatusCode(404, "Invalid Email, Username or Password");
 
-            bool created = _repo.CreateUser(email, username, password);
+            bool created = _facade.CreateUser(email, username, password);
             if(created)
                 return Ok("User Created!");
             
@@ -56,7 +56,7 @@ namespace webserver
             if(email == null || password == null)
                 return StatusCode(400, "Invalid Email or Password");
 
-            string? userId = _repo.ValidateUser(email, password);
+            string? userId = _facade.ValidateLogin(email, password);
             if(userId == null)
                 return StatusCode(404, "Wrong Email or Password");
 
@@ -67,18 +67,16 @@ namespace webserver
         [Route("delete_user/{userId}")]
         public ActionResult<bool> DeleteUser(string userId)
         {
-            return _repo.DeleteUser(userId);
+            return _facade.DeleteUser(userId);
         }
 
         [HttpGet]
         [Route("get_user_info/{userId}")]
         public ActionResult<string> GetUserInfo(string userId)
         {
-            AccountInfo? accInfo = _repo.GetAccountInfo(userId);
-            if(accInfo == null)
+            string? accInfoJson = _facade.GetAccountInfoJson(userId);
+            if(accInfoJson == null)
                 return StatusCode(404, "There's no username with this id");
-        
-            string accInfoJson = JsonConvert.SerializeObject(accInfo);
             return Ok(accInfoJson);
         }
 
@@ -100,11 +98,11 @@ namespace webserver
             if(userId == null || email == null || username == null || password == null)
                 return StatusCode(404, "Invalid AccountId, Email, Username or Password");
 
-            bool created = _repo.UpdateUser(userId, email, username, password);
-            if(created)
-                return Ok("User Created!");
+            bool updated = _facade.UpdateUserInfo(userId, email, username, password);
+            if(updated)
+                return Ok("User Info Updated!");
             
-            return StatusCode(403, "Could not create user. Email already registered");
+            return StatusCode(403, "Could update user. User not found");
         }
     }
 }

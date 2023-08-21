@@ -6,13 +6,13 @@ namespace webserver
 {
     [Route("documents")]
     [ApiController]
-    public class DocumentsController : ControllerBase
+    public class DocumentsRoute : ControllerBase
     {
-        private readonly IDocumentsRepository _repo;
+        private readonly AppFacade _facade;
 
-        public DocumentsController(IDocumentsRepository repo)
+        public DocumentsRoute(AppFacade facade)
         {
-            _repo = repo;
+            _facade = facade;
         }
 
         [HttpPut]
@@ -31,7 +31,7 @@ namespace webserver
             if(documentId == null || newName == null)
                 return StatusCode(404, "Invalid Document Id or new document name");
 
-            bool changedNames = _repo.ChangeDocumentName(documentId, newName);
+            bool changedNames = _facade.RenameDocument(documentId, newName);
             return changedNames;
         }
 
@@ -39,14 +39,14 @@ namespace webserver
         [Route("delete_document/{documentId}")]
         public ActionResult<bool> DeleteDocument(string documentId)
         {
-            return _repo.DeleteDocument(documentId);
+            return _facade.DeleteDocument(documentId);
         }
 
         [HttpGet]
         [Route("get_doc_content/{documentId}")]
         public ActionResult<string> GetDocumentContent(string documentId)
         {
-            string content = _repo.GetDocumentContent(documentId);
+            string? content = _facade.GetDocumentContent(documentId);
             if(content == null)
                 return StatusCode(404, "There's no document with the given id or document wasn't initialized");
             return Ok(content);
@@ -68,7 +68,7 @@ namespace webserver
             if(documentId == null || docContent == null)
                 return StatusCode(404, "Invalid Document Id or new document content");
 
-            bool stored = _repo.SaveDocument(documentId, docContent);
+            bool stored = _facade.UpdateDocumentContent(documentId, docContent);
             if(stored)
                 return Ok();
             return StatusCode(500);
