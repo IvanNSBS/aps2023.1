@@ -54,7 +54,8 @@ namespace webserver
         [Route("get_project_documents/{projectId}")]
         public ActionResult<string> GetProjectDocuments(string projectId)
         {
-            string? allDocumentsJson = _facade.GetAllProjectDocumentsJson(projectId);
+            Project project = new Project(projectId, "", "");
+            string? allDocumentsJson = _facade.GetAllProjectDocumentsJson(project);
             if(allDocumentsJson == null)
                 return StatusCode(404, "Project does not exist");
 
@@ -78,7 +79,8 @@ namespace webserver
             if(projectId == null || documentName == null)
                 return StatusCode(404, "Invalid Project Id or Document Name");
 
-            string? documentId = _facade.CreateDocument(projectId, documentName);
+            Project project = new Project(projectId, "", "");
+            string? documentId = _facade.CreateDocument(project, documentName);
             if(documentId == null)
                 return StatusCode(404, "Could not create document for project. ProjectId does not exist");
 
@@ -102,7 +104,8 @@ namespace webserver
             if(projectId == null || newName == null)
                 return StatusCode(404, "Invalid Project Id or new project name");
 
-            bool changedNames = _facade.ChangeProjectName(projectId, newName);
+            Project project = new Project(projectId, "", "");
+            bool changedNames = _facade.ChangeProjectName(project, newName);
             return changedNames;
         }
 
@@ -110,7 +113,8 @@ namespace webserver
         [Route("delete_project/{projectId}")]
         public ActionResult<bool> DeleteProject(string projectId)
         {
-            return _facade.DeleteProject(projectId);
+            Project project = new Project(projectId, "", "");
+            return _facade.DeleteProject(project);
         }
     }
 }

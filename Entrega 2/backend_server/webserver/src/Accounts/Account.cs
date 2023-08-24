@@ -6,7 +6,7 @@ namespace webserver
     public class Account
     {
         [Key]    
-        public string Id { get; private set; }
+        public string Id { get; set; }
 
         [Required]
         public string UserEmail { get; set; }

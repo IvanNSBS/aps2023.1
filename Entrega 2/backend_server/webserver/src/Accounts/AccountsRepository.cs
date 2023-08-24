@@ -64,7 +64,7 @@ namespace webserver
             }
         }
 
-        public bool UpdateUser(Account acc, string newEmail, string newUsername, string newPassword)
+        public bool UpdateUser(Account acc, Account newAcc)
         {
             using(var scope = _scopeFactory.CreateScope())
             {
@@ -72,9 +72,9 @@ namespace webserver
                 var updateAcc = db.Accounts.Find(acc.Id);
                 if(updateAcc != null)
                 {
-                    acc.UserEmail = newEmail;
-                    acc.Username = newUsername;
-                    acc.Password = newPassword;
+                    acc.UserEmail = newAcc.UserEmail;
+                    acc.Username = newAcc.Username;
+                    acc.Password = newAcc.Password;
                 }
                 db.SaveChanges();
                 return true;

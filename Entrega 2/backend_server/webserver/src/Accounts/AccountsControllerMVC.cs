@@ -7,11 +7,11 @@ namespace webserver
 {
     [Route("accounts")]
     [ApiController]
-    public class AccountsRoute : ControllerBase
+    public class AccountsControllerMVC : ControllerBase
     {
         private readonly AppFacade _facade;
 
-        public AccountsRoute(AppFacade facade)
+        public AccountsControllerMVC(AppFacade facade)
         {
             _facade = facade;
         }
@@ -33,7 +33,8 @@ namespace webserver
             if(email == null || username == null || password == null)
                 return StatusCode(404, "Invalid Email, Username or Password");
 
-            bool created = _facade.CreateUser(email, username, password);
+            Account acc = new Account("", email, username, password);
+            bool created = _facade.CreateUser(acc);
             if(created)
                 return Ok("User Created!");
             
@@ -56,7 +57,8 @@ namespace webserver
             if(email == null || password == null)
                 return StatusCode(400, "Invalid Email or Password");
 
-            string? userId = _facade.ValidateLogin(email, password);
+            Account acc = new Account("", email, "", password);
+            string? userId = _facade.ValidateLogin(acc);
             if(userId == null)
                 return StatusCode(404, "Wrong Email or Password");
 
@@ -67,7 +69,8 @@ namespace webserver
         [Route("delete_user/{userId}")]
         public ActionResult<bool> DeleteUser(string userId)
         {
-            return _facade.DeleteUser(userId);
+            Account acc = new Account(userId, "", "", "");
+            return _facade.DeleteUser(acc);
         }
 
         [HttpGet]
@@ -98,7 +101,9 @@ namespace webserver
             if(userId == null || email == null || username == null || password == null)
                 return StatusCode(404, "Invalid AccountId, Email, Username or Password");
 
-            bool updated = _facade.UpdateUserInfo(userId, email, username, password);
+            Account oldUser = new Account(userId, "", "", "");
+            Account newUser = new Account(userId, email, username, password);
+            bool updated = _facade.UpdateUserInfo(oldUser, newUser);
             if(updated)
                 return Ok("User Info Updated!");
             

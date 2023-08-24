@@ -4,55 +4,55 @@ namespace webserver
 {
     public class AccountsController
     {
-        private readonly IAccountsRepository _repo;
+        // private readonly IAccountsRepository _repo;
+        private readonly IAccountsRegister _register;
 
-        public AccountsController(IAccountsRepository repo)
+        public AccountsController(IAccountsRegister register)
         {
-            _repo = repo;
+            _register = register;
         }
 
         public Account? GetAccount(string userId)
         {
-            return _repo.GetUserFromAccountId(userId);
+            return _register.GetUserFromAccountId(userId);
         }
 
-        public bool CreateAccount(string email, string username, string password)
+        public bool CreateAccount(Account acc)
         {
-            bool exists = _repo.GetUserAccount(email) != null;
-            if(exists)
+            bool used = _register.IsEmailRegistered(acc);
+            if(used)
                 return false;
 
-            string uuid = Guid.NewGuid().ToString();
-            Account acc = new(uuid, email, username, password);
-            _repo.AddUser(acc);
+            _register.CreateUser(acc);
             return true;
         }
 
-        public string? ValidateLogin(string email, string password)
+        public string? ValidateLogin(Account acc)
         {
-            Account? user = _repo.GetUserAccount(email);
-            if(user == null)
+            bool correctEmail = _register.IsEmailRegistered(acc);
+            if(!correctEmail)
                 return null;
 
-            bool valid = user.Password == password;
-            if(!valid)
-                return "";
+            bool passwordCorrect = _register.IsPasswordCorrect(acc);
+            if(!passwordCorrect)
+                return null;
 
-            return user.Id;
+            string? id = _register.GetAccountId(acc);
+            return id;
         }
 
-        public bool DeleteUser(string userId)
+        public bool DeleteUser(Account acc)
         {
-            Account? user = _repo.GetUserFromAccountId(userId);
-            if(user == null)
+            bool exists = _register.UserExists(acc);
+            if (!exists)
                 return false;
 
-            return _repo.DeleteUser(user);
+            return _register.DeleteUser(acc);
         }
 
         public string? GetUserInfoJson(string userId)
         {
-            Account? user = _repo.GetUserFromAccountId(userId);
+            Account? user = _register.GetUserFromAccountId(userId);
             if(user == null)
                 return null;
         
@@ -66,13 +66,9 @@ namespace webserver
             return accInfoJson;
         }
 
-        public bool UpdateUserInfo(string userId, string email, string username, string password)
+        public bool UpdateUserInfo(Account oldUser, Account newUser)
         {
-            Account? user = _repo.GetUserFromAccountId(userId);
-            if(user == null)
-                return false;
-
-            _repo.UpdateUser(user, email, username, password);
+            _register.UpdateUser(oldUser, newUser);
             return true;
         }
     }

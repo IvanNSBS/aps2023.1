@@ -59,7 +59,6 @@ export class ProjectsPresenter
             const res = await axios.get(endpoint);
             const data = res.data;
             let projectsInfo: ItemInfo[] = [];
-
             for(let i = 0; i < data.length; i++)
             {
                 let projectInfo = data[i];

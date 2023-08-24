@@ -8,6 +8,6 @@ namespace webserver
         Account? GetUserFromAccountId(string id);
         bool AddUser(Account acc);
         bool DeleteUser(Account acc);
-        bool UpdateUser(Account acc, string newEmail, string newUsername, string newPassword);
+        bool UpdateUser(Account acc, Account newData);
     }
 }

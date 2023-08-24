@@ -45,6 +45,7 @@ const LoginView: FC<LoginProps> = (props: LoginProps): ReactElement => {
         else
         {
             appCtx?.setUserId(output.output);
+            console.log(output.output)
             redirectToProjects();
         }
     }

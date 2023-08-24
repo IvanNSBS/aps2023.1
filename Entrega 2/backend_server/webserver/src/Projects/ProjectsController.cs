@@ -4,72 +4,50 @@ namespace webserver
 {
     public class ProjectsController
     {
-        private readonly IProjectsRepository _projectsRepo;
-        private readonly IDocumentsRepository _docsRepo;
+        private readonly IProjectsRegister _register;
 
-        public ProjectsController(IProjectsRepository projectsRepo, IDocumentsRepository docsRepo)
+        public ProjectsController(IProjectsRegister register)
         {
-            _projectsRepo = projectsRepo;
-            _docsRepo = docsRepo;
+            _register = register;
         }
 
         public string GetUserProjectsJson(Account user)
         {
-            var allProjects = _projectsRepo.GetAllUserProjects(user);
-            string jsonString = JsonConvert.SerializeObject(allProjects);
+            var allProjects = _register.GetAllUserProjects(user);
+            var allProjectsInfo = allProjects.Select(x => new IdNameTuple{name= x.ProjectName, id = x.Id});
+            string jsonString = JsonConvert.SerializeObject(allProjectsInfo);
             return jsonString;
         }
 
-        public string CreateProject(Account user, string projectName)
+        public string? CreateProject(Account user, string projectName)
         {
-            string uuid = Guid.NewGuid().ToString();
-            Project project = new Project(uuid, projectName, user.Id);
-
-            _projectsRepo.AddProject(project);
-            return uuid;
+            Project? p = _register.AddProject(user, projectName);
+            return p?.Id;
         }
 
-        public string? GetProjectDocumentsJson(string projectId)
+        public string? GetProjectDocumentsJson(Project project)
         {
-            Project? project = _projectsRepo.GetProject(projectId);
-            if(project == null)
-                return null;
-
-            var allDocuments = _docsRepo.GetAllProjectDocuments(project);
+            var allDocuments = _register.GetAllProjectsDocument(project);
             var allDocsInfo = allDocuments.Select(x => new IdNameTuple{name=x.DocumentName, id=x.Id});
             string allDocsJson = JsonConvert.SerializeObject(allDocsInfo);
             return allDocsJson;
         }
 
-        public string? CreateDocument(string projectId, string documentName)
+        public string? CreateDocument(Project project, string documentName)
         {
-            Project? project = _projectsRepo.GetProject(projectId);
-            if(project == null)
-                return null;
-
-            string uuid = Guid.NewGuid().ToString();
-            Document doc = new Document(uuid, documentName, "",  null, project.Id);
-            _docsRepo.AddDocument(doc);
-            return uuid;
+            Document? d = _register.AddDocumentToProject(project, documentName);
+            return d?.Id;
         }
 
-        public bool ChangeProjectName(string projectId, string newName)
+        public bool ChangeProjectName(Project project, string newName)
         {
-            Project? project = _projectsRepo.GetProject(projectId);
-            if(project == null)
-                return false;
-
-            bool changedNames = _projectsRepo.ChangeProjectName(project, newName);
+            bool changedNames = _register.ChangeProjectName(project, newName);
             return changedNames;
         }
 
-        public bool DeleteProject(string projectId)
+        public bool DeleteProject(Project project)
         {
-            Project? project = _projectsRepo.GetProject(projectId);
-            if(project == null)
-                return false;
-
-            _projectsRepo.DeleteProject(project);
+            _register.DeleteProject(project);
             return true;
         }
     }

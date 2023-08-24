@@ -12,9 +12,15 @@ class Program
         builder.Services.AddSingleton<IAccountsRepository, AccountsRepository>();
         builder.Services.AddSingleton<IProjectsRepository, ProjectsRepository>();
         builder.Services.AddSingleton<IDocumentsRepository, DocumentsRepository>();
+
+        builder.Services.AddSingleton<IAccountsRegister, AccountsRegister>();
+        builder.Services.AddSingleton<IProjectsRegister, ProjectsRegister>();
+        builder.Services.AddSingleton<IDocumentsRegister, DocumentsRegister>();
+
         builder.Services.AddSingleton<AccountsController>();
         builder.Services.AddSingleton<ProjectsController>();
         builder.Services.AddSingleton<DocumentsController>();
+
         builder.Services.AddSingleton<AppFacade>();
         
         builder.Services.AddControllers();

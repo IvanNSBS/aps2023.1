@@ -6,6 +6,7 @@ namespace webserver
     {
         Project? GetProject(string projectId);
         IdNameTuple[] GetAllUserProjects(Account user);
+        Project[] GetAllUserProjectsRaw(Account user);
         string AddProject(Project project);
         bool ChangeProjectName(Project project, string newName);
         bool DeleteProject(Project project);
@@ -26,6 +27,16 @@ namespace webserver
             {
                 var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
                 var projects = db.Projects.Where(x => x.Owner.Id == user.Id).Select(x => new IdNameTuple{id=x.Id, name=x.ProjectName});
+                return projects.ToArray();
+            }
+        }
+
+        public Project[] GetAllUserProjectsRaw(Account user)
+        {
+            using(var scope = _scopeFactory.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                var projects = db.Projects.Where(x => x.Owner.Id == user.Id);
                 return projects.ToArray();
             }
         }

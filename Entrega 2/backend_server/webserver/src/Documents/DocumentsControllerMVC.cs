@@ -6,11 +6,11 @@ namespace webserver
 {
     [Route("documents")]
     [ApiController]
-    public class DocumentsRoute : ControllerBase
+    public class DocumentsControllerMVC : ControllerBase
     {
         private readonly AppFacade _facade;
 
-        public DocumentsRoute(AppFacade facade)
+        public DocumentsControllerMVC(AppFacade facade)
         {
             _facade = facade;
         }
@@ -31,7 +31,8 @@ namespace webserver
             if(documentId == null || newName == null)
                 return StatusCode(404, "Invalid Document Id or new document name");
 
-            bool changedNames = _facade.RenameDocument(documentId, newName);
+            Document d = new Document(documentId, "", "", null, "");
+            bool changedNames = _facade.RenameDocument(d, newName);
             return changedNames;
         }
 
@@ -39,14 +40,16 @@ namespace webserver
         [Route("delete_document/{documentId}")]
         public ActionResult<bool> DeleteDocument(string documentId)
         {
-            return _facade.DeleteDocument(documentId);
+            Document d = new Document(documentId, "", "", null, "");
+            return _facade.DeleteDocument(d);
         }
 
         [HttpGet]
         [Route("get_doc_content/{documentId}")]
         public ActionResult<string> GetDocumentContent(string documentId)
         {
-            string? content = _facade.GetDocumentContent(documentId);
+            Document d = new Document(documentId, "", "", null, "");
+            string? content = _facade.GetDocumentContent(d);
             if(content == null)
                 return StatusCode(404, "There's no document with the given id or document wasn't initialized");
             return Ok(content);
@@ -68,7 +71,8 @@ namespace webserver
             if(documentId == null || docContent == null)
                 return StatusCode(404, "Invalid Document Id or new document content");
 
-            bool stored = _facade.UpdateDocumentContent(documentId, docContent);
+            Document d = new Document(documentId, "", "", null, "");
+            bool stored = _facade.UpdateDocumentContent(d, docContent);
             if(stored)
                 return Ok();
             return StatusCode(500);

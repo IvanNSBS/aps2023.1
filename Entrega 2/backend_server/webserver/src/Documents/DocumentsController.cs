@@ -2,48 +2,34 @@ namespace webserver
 {
     public class DocumentsController
     {
-        private readonly IDocumentsRepository _repo;
+        // private readonly IDocumentsRepository _repo;
+        private readonly IDocumentsRegister _register;
 
-        public DocumentsController(IDocumentsRepository repo)
+        public DocumentsController(IDocumentsRegister register)
         {
-            _repo = repo;
+            _register = register;
         }
 
-        public bool ChangeDocumentName(string documentId, string newName)
+        public bool ChangeDocumentName(Document doc, string newName)
         {
-            Document? d = _repo.GetDocument(documentId);
-            if(d == null)
-                return false;
-
-            bool changedNames = _repo.ChangeDocumentName(d, newName);
+            bool changedNames = _register.ChangeDocumentName(doc, newName);
             return changedNames;
         }
 
-        public bool DeleteDocument(string documentId)
+        public bool DeleteDocument(Document d)
         {
-            Document? d = _repo.GetDocument(documentId);
-            if(d == null)
-                return false;
-
-            return _repo.DeleteDocument(d);
+            return _register.DeleteDocument(d);
         }
 
-        public string? GetDocumentContent(string documentId)
+        public string? GetDocumentContent(Document d)
         {
-            Document? d = _repo.GetDocument(documentId);
-            if(d == null)
-                return null;
-
-            return d.Content;
+            string? content = _register.GetDocumentContent(d);
+            return content;
         }
 
-        public bool SaveDocument(string documentId, string docContent)
+        public bool SaveDocument(Document d, string docContent)
         {
-            Document? d = _repo.GetDocument(documentId);
-            if(d == null)
-                return false;
-
-            bool stored = _repo.UpdateDocumentContent(d, docContent);
+            bool stored = _register.UpdateDocumentContent(d, docContent);
             return stored;
         }
     }

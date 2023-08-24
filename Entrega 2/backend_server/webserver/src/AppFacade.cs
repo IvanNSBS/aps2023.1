@@ -17,19 +17,19 @@ namespace webserver
             _projects = projects;
         }
 
-        public bool CreateUser(string email, string username, string password)
+        public bool CreateUser(Account acc)
         {
-            return _accs.CreateAccount(email, username, password);
+            return _accs.CreateAccount(acc);
         }
 
-        public string? ValidateLogin(string email, string password)
+        public string? ValidateLogin(Account acc)
         {
-            return _accs.ValidateLogin(email, password);
+            return _accs.ValidateLogin(acc);
         }
 
-        public bool DeleteUser(string userId)
+        public bool DeleteUser(Account acc)
         {
-            return _accs.DeleteUser(userId);
+            return _accs.DeleteUser(acc);
         }
 
         public string? GetAccountInfoJson(string userId)
@@ -37,9 +37,9 @@ namespace webserver
             return _accs.GetUserInfoJson(userId);
         }
 
-        public bool UpdateUserInfo(string userId, string email, string username, string password)
+        public bool UpdateUserInfo(Account oldUser, Account newUser)
         {
-            return _accs.UpdateUserInfo(userId, email, username, password);
+            return _accs.UpdateUserInfo(oldUser, newUser);
         }
 
         public string? GetAllUserProjectsJson(string userId)
@@ -60,44 +60,44 @@ namespace webserver
             return _projects.CreateProject(user, projectName);
         }
 
-        public string? GetAllProjectDocumentsJson(string projectId)
+        public string? GetAllProjectDocumentsJson(Project project)
         {
-            return _projects.GetProjectDocumentsJson(projectId);
+            return _projects.GetProjectDocumentsJson(project);
         }
 
-        public string? CreateDocument(string projectId, string documentName)
+        public string? CreateDocument(Project project, string documentName)
         {
-            return _projects.CreateDocument(projectId, documentName);
+            return _projects.CreateDocument(project, documentName);
         }
 
-        public bool ChangeProjectName(string projectId, string newName)
+        public bool ChangeProjectName(Project project, string newName)
         {
-            return _projects.ChangeProjectName(projectId, newName);
+            return _projects.ChangeProjectName(project, newName);
         }
 
-        public bool DeleteProject(string projectId)
+        public bool DeleteProject(Project project)
         {
-            return _projects.DeleteProject(projectId);
+            return _projects.DeleteProject(project);
         }
 
-        public string? GetDocumentContent(string documentId)
+        public string? GetDocumentContent(Document d)
         {
-            return _docs.GetDocumentContent(documentId);
+            return _docs.GetDocumentContent(d);
         }
 
-        public bool RenameDocument(string documentId, string newName)
+        public bool RenameDocument(Document d, string newName)
         {
-            return _docs.ChangeDocumentName(documentId, newName);
+            return _docs.ChangeDocumentName(d, newName);
         }
 
-        public bool UpdateDocumentContent(string documentId, string newContent)
+        public bool UpdateDocumentContent(Document d, string newContent)
         {
-            return _docs.SaveDocument(documentId, newContent);
+            return _docs.SaveDocument(d, newContent);
         }
 
-        public bool DeleteDocument(string documentId)
+        public bool DeleteDocument(Document d)
         {
-            return _docs.DeleteDocument(documentId);
+            return _docs.DeleteDocument(d);
         }
         #endregion
     }
