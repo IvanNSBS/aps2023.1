@@ -9,6 +9,7 @@ import { WriteCommand } from '../../Business/Commands/WriteCommand';
 import { TextEditorTimers } from './TextEditorTimers';
 import { DocumentController } from '../../Controllers/DocumentController';
 import { CommandsHistory } from '../../Business/Commands/CommandsHistory';
+import { TextEditorEventsPublisher } from './TextEditorObserver';
 
 type TextEditorProps = {
   controller: DocumentController;
@@ -51,6 +52,7 @@ const TextEditor: FC<TextEditorProps> = (props:TextEditorProps): ReactElement =>
   const [currentInnerText, setCurrentInnerText] = useState<string>("");
   const [suggestionTokens, setSuggestionTokens] = useState<GrammarSuggestionInfo[]>([]);
   const cmdHistory = useRef<CommandsHistory>(new CommandsHistory(256));
+  const evtsPublisher = useRef<TextEditorEventsPublisher>(new TextEditorEventsPublisher());
 
   const caretPosition = useRef<number>(0);
   const tokensInfo = useRef<TokenInfo[]>([]);
@@ -148,6 +150,7 @@ const TextEditor: FC<TextEditorProps> = (props:TextEditorProps): ReactElement =>
   }
 
   const onKeyDown = function(evt: any) {
+    evtsPublisher.current.notifyKeystroke();
     if(evt.ctrlKey)
     {
       if(evt.code === "KeyZ"){
@@ -202,6 +205,7 @@ const TextEditor: FC<TextEditorProps> = (props:TextEditorProps): ReactElement =>
         setSuggestionTokens={setSuggestionTokens}
         controller={props.controller}
         tokensInfo={tokensInfo}
+        getEventsPublisher={() => evtsPublisher.current }
       />
       <span>
         <button onClick={() => cmdHistory.current.undo_last_command()}>Desfazer</button>
