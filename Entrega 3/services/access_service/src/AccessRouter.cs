@@ -40,6 +40,14 @@ namespace webserver
             return StatusCode(403, "Could not create user. Email already registered");
         }
 
+        [HttpGet]
+        [Route("test_docker")]
+        public ActionResult<string> Test()
+        {
+            Console.WriteLine("Run!");
+            return "Running on docker!";
+        }
+
         [HttpPost]
         [Route("login")]
         public async Task<ActionResult> Login()

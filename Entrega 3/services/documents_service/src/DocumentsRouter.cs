@@ -34,6 +34,14 @@ namespace webserver
         }
 
         [HttpGet]
+        [Route("test_docker")]
+        public ActionResult<string> Test()
+        {
+            Console.WriteLine("Run!");
+            return "Running on docker!";
+        }
+
+        [HttpGet]
         [Route("get_project_documents/{project_id}")]
         public ActionResult<string> GetProjectDocuments(string project_id)
         {

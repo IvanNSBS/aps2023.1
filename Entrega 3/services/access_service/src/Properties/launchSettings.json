@@ -9,7 +9,7 @@
     }
   },
   "profiles": {
-    "webserver": {
+    "access_service": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,

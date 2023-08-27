@@ -19,6 +19,14 @@ namespace webserver
             _controller = ctrl;
         }
 
+        [HttpGet]
+        [Route("test_docker")]
+        public ActionResult<string> Test()
+        {
+            Console.WriteLine("Run!");
+            return "Running on docker!";
+        }
+
         [HttpPost]
         [Route("get_user_projects")]
         public async Task<ActionResult<string>> GetUserProjects()
