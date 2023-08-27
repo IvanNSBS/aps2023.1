@@ -7,7 +7,7 @@ namespace webserver
         private readonly IProjectsRegistor _register;
         private static HttpClient client = new()
         {
-            BaseAddress = new Uri("http://localhost:8200"),
+            BaseAddress = new Uri("http://documents_service:8200"),
         };
 
         public ProjectsController(IProjectsRegistor register)

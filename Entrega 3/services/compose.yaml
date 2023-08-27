@@ -7,10 +7,30 @@ services:
       dockerfile: Dockerfile
       args:
         PROJECT_DIR: "/access_service"
-    command: "dotnet run"
+    depends_on:
+     - "access_db"
+    command: bash -c "dotnet ef database update && dotnet run"
     ports:
       - 127.0.0.1:8000:8000
     working_dir: /access_service
+    networks:
+      - services_network
+
+  access_db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: aps_access_service
+    ports:
+      - 9500:5432
+    volumes:
+      - access_postgres_volume:/var/lib/postgresql/data
+    networks:
+      - services_network
+
+
 
   projects_service:
     image: compose-projects_service
@@ -18,10 +38,30 @@ services:
       dockerfile: Dockerfile
       args:
         PROJECT_DIR: "/projects_service"
-    command: "dotnet run"
+    depends_on:
+     - "projects_db"
+    command: bash -c "dotnet ef database update && dotnet run"
     ports:
       - 127.0.0.1:8100:8100
     working_dir: /projects_service
+    networks:
+      - services_network
+
+  projects_db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: aps_projects_service
+    ports:
+      - 9501:5432
+    volumes:
+      - projects_postgres_volume:/var/lib/postgresql/data
+    networks:
+      - services_network
+
+
 
   documents_service:
     image: compose-documents_service
@@ -29,8 +69,34 @@ services:
       dockerfile: Dockerfile
       args:
         PROJECT_DIR: "/documents_service"
-    command: "dotnet run"
+    depends_on:
+     - "documents_db"
+    command: bash -c "dotnet ef database update && dotnet run"
     ports:
       - 127.0.0.1:8200:8200
     working_dir: /documents_service
-  
+    networks:
+      - services_network
+      
+  documents_db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: aps_docs_service
+    ports:
+      - 9502:5432
+    volumes:
+      - documents_postgres_volume:/var/lib/postgresql/data
+    networks:
+      - services_network
+
+volumes:
+  access_postgres_volume:
+  projects_postgres_volume:
+  documents_postgres_volume:
+
+networks:
+  services_network:
+    driver: bridge

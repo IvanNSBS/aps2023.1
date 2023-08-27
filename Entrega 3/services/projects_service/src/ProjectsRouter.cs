@@ -11,7 +11,7 @@ namespace webserver
         private readonly ProjectsController _controller;
         private static HttpClient client = new()
         {
-            BaseAddress = new Uri("http://localhost:8200"),
+            BaseAddress = new Uri("http://documents_service:8200"),
         };
 
         public ProjectsRouter(ProjectsController ctrl)

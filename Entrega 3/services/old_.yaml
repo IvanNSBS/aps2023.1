@@ -1,0 +1,51 @@
+version: '1'
+
+services:
+  access_db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "1234"
+      POSTGRES_DB: aps_access_service
+    volumes:
+      - access_postgres_volume:/var/lib/postgresql/access_db
+
+  access_service:
+    image: compose-access_service
+    build: 
+      dockerfile: Dockerfile
+      args:
+        PROJECT_DIR: "/access_service"
+    depends_on:
+     - "acces_db"
+    command: "dotnet run"
+    ports:
+      - 127.0.0.1:8000:8000
+    working_dir: /access_service
+
+  projects_service:
+    image: compose-projects_service
+    build: 
+      dockerfile: Dockerfile
+      args:
+        PROJECT_DIR: "/projects_service"
+    command: "dotnet run"
+    ports:
+      - 127.0.0.1:8100:8100
+    working_dir: /projects_service
+
+  documents_service:
+    image: compose-documents_service
+    build: 
+      dockerfile: Dockerfile
+      args:
+        PROJECT_DIR: "/documents_service"
+    command: "dotnet run"
+    ports:
+      - 127.0.0.1:8200:8200
+    working_dir: /documents_service
+
+volumes:
+  access_postgres_volume:
+  
