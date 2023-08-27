@@ -128,9 +128,7 @@ namespace webserver
             using var reader = new StreamReader(HttpContext.Request.Body);
             var body = await reader.ReadToEndAsync();
             
-            using HttpResponseMessage response = await client.PostAsJsonAsync("documents/create_document", body);
-            response.EnsureSuccessStatusCode();
-            
+            using HttpResponseMessage response = await DocumentsHTTPClient.Instance.SendAsyncPost("create_document", body);
             var jsonResponse = await response.Content.ReadAsStringAsync();
             return Ok(jsonResponse);
         }
@@ -139,11 +137,10 @@ namespace webserver
         [Route("get_project_documents/{projectId}")]
         public async Task<ActionResult<string>> GetProjectDocuments(string projectId)
         {
-            string uri = $"documents/get_project_documents/{projectId}";
+            string uri = $"get_project_documents/{projectId}";
             Console.WriteLine("Get Documents Uri: " + uri);
-            using HttpResponseMessage response = await client.GetAsync(uri);
-            response.EnsureSuccessStatusCode();
-            
+
+            HttpResponseMessage response = await DocumentsHTTPClient.Instance.SendAsyncGet(uri);
             var jsonResponse = await response.Content.ReadAsStringAsync();
             Console.WriteLine(jsonResponse);
             return Ok(jsonResponse);

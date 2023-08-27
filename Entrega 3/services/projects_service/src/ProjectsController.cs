@@ -38,7 +38,7 @@ namespace webserver
         public async Task<bool> DeleteProject(ProjectDTO project)
         {
             bool deleted = _register.DeleteProject(project);
-            using HttpResponseMessage response = await client.DeleteAsync($"documents/delete_project_documents/{project.id}");
+            using HttpResponseMessage response = await DocumentsHTTPClient.Instance.SendAsyncDelete($"delete_project_documents/{project.id}");
             response.EnsureSuccessStatusCode();
             return deleted;
         }
