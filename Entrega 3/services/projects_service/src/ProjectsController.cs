@@ -5,6 +5,10 @@ namespace webserver
     public class ProjectsController
     {
         private readonly IProjectsRegistor _register;
+        private static HttpClient client = new()
+        {
+            BaseAddress = new Uri("http://localhost:8200"),
+        };
 
         public ProjectsController(IProjectsRegistor register)
         {
@@ -31,23 +35,12 @@ namespace webserver
             return changed;
         }
 
-        public bool DeleteProject(SessionDTO session, ProjectDTO project)
+        public async Task<bool> DeleteProject(ProjectDTO project)
         {
-            return _register.DeleteProject(project);
+            bool deleted = _register.DeleteProject(project);
+            using HttpResponseMessage response = await client.DeleteAsync($"documents/delete_project_documents/{project.id}");
+            response.EnsureSuccessStatusCode();
+            return deleted;
         }
-
-        // public string? GetProjectDocumentsJson(SessionDTO session, ProjectDTO project)
-        // {
-        //     var allDocuments = _register.GetAllProjectsDocument(project);
-        //     var allDocsInfo = allDocuments.Select(x => new IdNameTuple{name=x.DocumentName, id=x.Id});
-        //     string allDocsJson = JsonConvert.SerializeObject(allDocsInfo);
-        //     return allDocsJson;
-        // }
-
-        // public string? CreateDocument(SessionDTO session, ProjectDTO project, string documentName)
-        // {
-        //     Document? d = _register.AddDocumentToProject(project, documentName);
-        //     return d?.Id;
-        // }
     }
 }

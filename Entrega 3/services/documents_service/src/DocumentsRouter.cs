@@ -1,4 +1,3 @@
-using System.Web;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -85,6 +84,21 @@ namespace webserver
         {
             DocumentDTO d = new DocumentDTO{id=documentId, name="", content="", projectId=""};
             return _controller.DeleteDocument(d);
+        }
+
+        [HttpDelete]
+        [Route("delete_project_documents/{projectId}")]
+        public ActionResult<bool> DeleteProjectDocuments(string projectId)
+        {
+            Console.WriteLine("asdasjklhdashuiodashuidashuidiashu dihuaS ");
+            Console.WriteLine("asdasjklhdashuiodashuidashuidiashu dihuaS ");
+            Console.WriteLine("asdasjklhdashuiodashuidashuidiashu dihuaS ");
+            Console.WriteLine("asdasjklhdashuiodashuidashuidiashu dihuaS ");
+            Console.WriteLine("asdasjklhdashuiodashuidashuidiashu dihuaS ");
+            ProjectDTO p = new ProjectDTO{id=projectId, name="", user=""};
+            _controller.DeleteProjectDocuments(p);
+
+            return Ok(true);
         }
 
         [HttpPut]

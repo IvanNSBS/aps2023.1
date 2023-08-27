@@ -2,10 +2,11 @@ import axios from "axios"
 import { GrammarCorrection } from "./BingSpellCheckProvider";
 import { TokenInfo } from "../Business/TextEditor/TextEditorTokenizer";
 import { ISpellCheckProvider } from "./ISpellCheckProvider";
+import ServicePorts from "../ServicePorts";
 
 export class DocumentController
 {
-    private url: string = "http://127.0.0.1:5000/documents";
+    private url: string = `http://127.0.0.1:${ServicePorts.DOCUMENTS_SERVICE}/documents`;
     private spellChecker: ISpellCheckProvider;
 
     constructor(spellcheckProvider: ISpellCheckProvider){
@@ -18,7 +19,12 @@ export class DocumentController
         {
             const endpoint = `${this.url}/set_document_name`;
             const jsonData = {
-                "document_id": documentId,
+                "document": {
+                    id:documentId,
+                    name:"",
+                    content: "",
+                    project: ""
+                },
                 "new_name": newName
             }
             const {data} = await axios.put(endpoint, jsonData);
@@ -48,7 +54,12 @@ export class DocumentController
         {
             const endpoint = `${this.url}/save_doc_content`;
             const jsonData = {
-                "document_id": documentId,
+                "document": {
+                    id:documentId,
+                    name:"",
+                    content: "",
+                    project: ""
+                },
                 "doc_content": docContent
             }
             await axios.put(endpoint, jsonData);

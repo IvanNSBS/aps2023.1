@@ -1,5 +1,3 @@
-using System.Text.Encodings.Web;
-using System.Web;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -108,26 +106,11 @@ namespace webserver
 
 
         [HttpDelete]
-        [Route("delete_project")]
-        public async Task<ActionResult<bool>> DeleteProject()
+        [Route("delete_project/{projectId}")]
+        public async Task<ActionResult<bool>> DeleteProject(string projectId)
         {
-            using var reader = new StreamReader(HttpContext.Request.Body);
-            var body = await reader.ReadToEndAsync();
-            
-            var data = JsonConvert.DeserializeObject<JObject>(body);
-            if(data == null)
-                return StatusCode(500, "Invalid request body");
-            
-            JObject? session = data.SelectToken("session")?.Value<JObject>();
-            JObject? project = data.SelectToken("project")?.Value<JObject>();
-
-            if(session == null || project == null)
-                return StatusCode(404, "Invalid userId or projectName");
-
-            var sessionDTO = JsonConvert.DeserializeObject<SessionDTO>(session.ToString());
-            var projectDTO = JsonConvert.DeserializeObject<ProjectDTO>(project.ToString());
-
-            return _controller.DeleteProject(sessionDTO, projectDTO);
+            ProjectDTO p = new ProjectDTO{id=projectId, name="", user=""};
+            return await _controller.DeleteProject(p);
         }
 
         [HttpPost]

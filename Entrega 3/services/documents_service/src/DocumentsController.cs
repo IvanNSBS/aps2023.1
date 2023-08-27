@@ -36,6 +36,15 @@ namespace webserver
             return _register.DeleteDocument(d);
         }
 
+        public void DeleteProjectDocuments(ProjectDTO p)
+        {
+            var documents = _register.GetProjectDocuments(p);
+            foreach(Document doc in documents){
+                DocumentDTO d = new DocumentDTO{id=doc.Id, name=doc.DocumentName, content="", projectId=doc.ProjectId};
+                _register.DeleteDocument(d);
+            }
+        }
+
         public string? GetDocumentContent(DocumentDTO d)
         {
             string? content = _register.GetDocumentContent(d);
