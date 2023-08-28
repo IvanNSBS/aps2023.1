@@ -46,6 +46,12 @@ namespace webserver
                     return StatusCode(404, "Invalid userId or projectName");
 
                 var sessionDTO = JsonConvert.DeserializeObject<SessionDTO>(session.ToString());
+                bool validSession = await AccessHTTPClient.Instance.ValidateSession(sessionDTO);
+                if(!validSession){
+                    Console.WriteLine($"Invalid Session: {session}");
+                    return StatusCode(400, "Invalid Session");
+                }
+                    
                 string? projectsJson = _controller.GetUserProjectsJson(sessionDTO);
                 if(projectsJson == null)
                     return StatusCode(404, "User does not exist");
@@ -82,6 +88,12 @@ namespace webserver
             if(project == null)
                 return StatusCode(404, "Could not create project for user. user does not exist");
 
+            bool validSession = await AccessHTTPClient.Instance.ValidateSession(sessionDTO);
+            if(!validSession) {
+                Console.WriteLine($"Invalid Session: {session}");
+                return StatusCode(400, "Invalid Session");
+            }
+
             ProjectDTO p = new ProjectDTO{id=project.Id, name=project.ProjectName, user=project.UserId};
             string projectJson = JsonConvert.SerializeObject(p);
             return projectJson;
@@ -107,8 +119,12 @@ namespace webserver
 
             var sessionDTO = JsonConvert.DeserializeObject<SessionDTO>(session.ToString());
             var projectDTO = JsonConvert.DeserializeObject<ProjectDTO>(project.ToString());
+            bool validSession = await AccessHTTPClient.Instance.ValidateSession(sessionDTO);
+            if(!validSession){
+                Console.WriteLine($"Invalid Session: {session}");
+                return StatusCode(400, "Invalid Session");
+            }
             bool changed = _controller.ChangeProjectName(sessionDTO, projectDTO, newName);
-
             return Ok(changed);
         }
 

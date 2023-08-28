@@ -40,14 +40,6 @@ namespace webserver
             return StatusCode(403, "Could not create user. Email already registered");
         }
 
-        [HttpGet]
-        [Route("test_docker")]
-        public ActionResult<string> Test()
-        {
-            Console.WriteLine("Run!");
-            return "Running on docker!";
-        }
-
         [HttpPost]
         [Route("login")]
         public async Task<ActionResult> Login()
@@ -101,6 +93,22 @@ namespace webserver
             SessionDTO sessionDTO = new SessionDTO{id=session.Id, user=acc};
             string sessionJson = JsonConvert.SerializeObject(sessionDTO);
             return Ok(sessionJson);
+        }
+
+        [HttpPost]
+        [Route("validate_ongoing_session")]
+        public async Task<ActionResult<bool>> ValidateOngoingSession()
+        {
+            using var reader = new StreamReader(HttpContext.Request.Body);
+            var body = await reader.ReadToEndAsync();
+            var data = JsonConvert.DeserializeObject<string>(body);
+
+            Console.WriteLine("Json: " + data);
+            var sessionDTO = JsonConvert.DeserializeObject<SessionDTO>(data);
+            bool valid = _ctrl.ValidateOngoingSession(sessionDTO);
+            if(valid)
+                return Ok(true);
+            return StatusCode(400, false);
         }
 
         [HttpPut]

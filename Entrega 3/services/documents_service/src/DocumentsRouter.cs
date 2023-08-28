@@ -98,14 +98,8 @@ namespace webserver
         [Route("delete_project_documents/{projectId}")]
         public ActionResult<bool> DeleteProjectDocuments(string projectId)
         {
-            Console.WriteLine("asdasjklhdashuiodashuidashuidiashu dihuaS ");
-            Console.WriteLine("asdasjklhdashuiodashuidashuidiashu dihuaS ");
-            Console.WriteLine("asdasjklhdashuiodashuidashuidiashu dihuaS ");
-            Console.WriteLine("asdasjklhdashuiodashuidashuidiashu dihuaS ");
-            Console.WriteLine("asdasjklhdashuiodashuidashuidiashu dihuaS ");
             ProjectDTO p = new ProjectDTO{id=projectId, name="", user=""};
             _controller.DeleteProjectDocuments(p);
-
             return Ok(true);
         }
 

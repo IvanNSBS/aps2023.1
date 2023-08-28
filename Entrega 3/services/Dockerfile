@@ -5,6 +5,6 @@ COPY ${PROJECT_DIR} .
 
 RUN dotnet tool install --global dotnet-ef
 ENV PATH="$PATH:/root/.dotnet/tools"
-RUN dotnet restore
+# RUN dotnet restore
 # ENTRYPOINT ["tail", "-f", "/dev/null"]
 # CMD ["dotnet", "ef", "database", "update"]

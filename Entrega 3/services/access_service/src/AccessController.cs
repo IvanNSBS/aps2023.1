@@ -35,6 +35,11 @@ namespace webserver
             return session;
         }
 
+        public bool ValidateOngoingSession(SessionDTO sessionDTO)
+        {
+            return _sessionRegistor.ValidateSession(sessionDTO);
+        }
+
         public bool UpdateUserInfo(UserDTO oldUser, UserDTO newUser)
         {
             _usersRegistor.UpdateUser(oldUser, newUser);
